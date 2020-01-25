@@ -1,0 +1,2 @@
+# OutlayManager
+Outlay manager aplication 
