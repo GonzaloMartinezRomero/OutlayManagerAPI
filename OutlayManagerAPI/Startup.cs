@@ -53,9 +53,9 @@ namespace OutlayManagerAPI
                 app.UseDeveloperExceptionPage();
             }
           
-            app.UseHttpsRedirection();
+            //app.UseHttpsRedirection();
             app.UseRouting();
-            app.UseAuthorization();
+            //app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {
@@ -66,8 +66,8 @@ namespace OutlayManagerAPI
             app.ApplicationServices.GetService<IOutlayServiceAPI>().ConfigureOutlayServices(y =>
             {
                 y.Provider = ConfigurationServices.TypesProviders.SQLITE_ON_EF;
-                y.PathConnection = @"D:\Instalacion_SQLite\Data\OutlayManagerDataBase.db";
-
+                y.PathConnection = Configuration.GetConnectionString("PathBDConnection");
+               
             }).InitialiceComponents();
         }
     }
