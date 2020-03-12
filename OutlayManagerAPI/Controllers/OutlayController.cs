@@ -14,7 +14,8 @@ using OutlayManagerCore.Model.Transaction;
 namespace OutlayManagerAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    //[Route("[controller]")] -> En caso de tener que refactorizar, el hecho de cambiar el nombre puede producir problemas
+    [Route("Outlay")]
     public class OutlayController : ControllerBase
     {
         private readonly IOutlayServiceAPI service;
@@ -25,7 +26,10 @@ namespace OutlayManagerAPI.Controllers
         }
 
         [HttpGet("All")]
-        public IEnumerable<WSTransaction> GetAllTransactions()
+        /*
+         IActionResult te permite encapsular fallos + datos, si devuelvo el objeto, solo obtengo los datos   
+         */
+        public IActionResult GetAllTransactions()
         {
             //Get all transaction from outlay core
             List<Transaction> listTransactions = new List<Transaction>();
@@ -37,11 +41,11 @@ namespace OutlayManagerAPI.Controllers
             foreach (Transaction transactionFromCore in listTransactions)
                 listWSTransaction.Add(CastObject.ToWSTransaction(transactionFromCore));
 
-            return listWSTransaction;
+            return Ok(listWSTransaction);
         }
 
         [HttpGet]
-        public IEnumerable<WSTransaction> GetTransactions(int year, int month)
+        public IActionResult GetTransactions(int year, int month)
         {
             //Get all transaction from outlay core
             List<Transaction> listTransactions = new List<Transaction>();
@@ -53,7 +57,7 @@ namespace OutlayManagerAPI.Controllers
             foreach (Transaction transactionFromCore in listTransactions)
                 listWSTransaction.Add(CastObject.ToWSTransaction(transactionFromCore));
 
-            return listWSTransaction;
+            return (listWSTransaction.Count == 0) ? (IActionResult)NotFound() : Ok(listWSTransaction);
         }
 
         [HttpGet("{id}")]

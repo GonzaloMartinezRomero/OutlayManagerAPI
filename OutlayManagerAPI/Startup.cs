@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -37,12 +38,20 @@ namespace OutlayManagerAPI
              */
 
             services.AddSingleton<IOutlayServiceAPI, OutlayServiceAPI>();
-         
+
             services.AddControllers()
                     .ConfigureApiBehaviorOptions(options=> 
                     {
                         options.ClientErrorMapping[404].Link = "https://httpstatuses.com/404";
                     });
+
+            services.AddControllers(config =>
+            {
+                //Devuelve un "Not Acceptable" si el dato devuelto no tiene el parseador adecuado
+                //Por defecto se tiene json, pero en este caso se le ha agregado xml, cualquier otro lanza un 406(NotAcceptabler)
+                config.ReturnHttpNotAcceptable = true;
+
+            }).AddXmlDataContractSerializerFormatters();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
