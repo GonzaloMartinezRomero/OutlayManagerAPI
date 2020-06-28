@@ -69,7 +69,7 @@ namespace OutlayManagerAPI.Controllers
                 foreach (Transaction transactionFromCore in listTransactions)
                     listWSTransaction.Add(CastObject.ToWSTransaction(transactionFromCore));
 
-                return (listWSTransaction.Count == 0) ? (IActionResult)NotFound() : Ok(listWSTransaction);
+                return Ok(listWSTransaction);
 
             }catch(Exception e)
             {
