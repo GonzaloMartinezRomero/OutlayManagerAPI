@@ -14,16 +14,6 @@ namespace OutlayManagerAPI
 {
     public class Program
     {
-        //public static void Main(string[] args)
-        //{
-        //    var host = new WebHostBuilder()
-        //                       .UseKestrel()
-        //                       .UseStartup<Startup>()
-        //                       .Build();
-
-        //    host.Run();
-        //}
-
         public static void Main(string[] args)
         {
             CreateHostBuilder(args).Build().Run();
@@ -33,7 +23,7 @@ namespace OutlayManagerAPI
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>();
+                    webBuilder.UseStartup<Startup>();                   
                 });
     }
 }

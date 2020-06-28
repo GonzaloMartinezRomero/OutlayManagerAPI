@@ -50,7 +50,7 @@ namespace OutlayManagerAPI.Services
 
         public StateInfo DeleteTransaction(int id)
         {
-            return outlayCore.DeleteTransaction((uint)id);
+           return outlayCore.DeleteTransaction((uint)id);
         }
 
         public List<string> GetTypeOutlays()

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Net.Mime;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using OutlayManagerAPI.Model;
@@ -26,62 +28,117 @@ namespace OutlayManagerAPI.Controllers
         }
 
         [HttpGet("All")]
-        /*
-         IActionResult te permite encapsular fallos + datos, si devuelvo el objeto, solo obtengo los datos   
-         */
+        [ProducesResponseType(200,Type = typeof(List<WSTransaction>))]
+        [ProducesResponseType(500)]
         public IActionResult GetAllTransactions()
         {
-            //Get all transaction from outlay core
-            List<Transaction> listTransactions = new List<Transaction>();
-            listTransactions.AddRange(service.GetAllTransactions());
+            try
+            {
+                //Get all transaction from outlay core
+                List<Transaction> listTransactions = new List<Transaction>();
+                listTransactions.AddRange(service.GetAllTransactions());
 
-            //Parse for return to dto standar
-            List<WSTransaction> listWSTransaction = new List<WSTransaction>();
+                //Parse for return to dto standar
+                List<WSTransaction> listWSTransaction = new List<WSTransaction>();
 
-            foreach (Transaction transactionFromCore in listTransactions)
-                listWSTransaction.Add(CastObject.ToWSTransaction(transactionFromCore));
+                foreach (Transaction transactionFromCore in listTransactions)
+                    listWSTransaction.Add(CastObject.ToWSTransaction(transactionFromCore));
 
-            return Ok(listWSTransaction);
+                return Ok(listWSTransaction);
+
+            }catch(Exception e)
+            {
+                return StatusCode(statusCode: 500, e.Message);
+            }
         }
 
         [HttpGet]
-        public IActionResult GetTransactions(int year, int month)
+        [ProducesResponseType(200, Type = typeof(List<WSTransaction>))]
+        [ProducesResponseType(500)]
+        public IActionResult GetTransactions([Required]int year,[Required] int month)
         {
-            //Get all transaction from outlay core
-            List<Transaction> listTransactions = new List<Transaction>();
-            listTransactions.AddRange(service.GetTransactions(year, month));
+            try
+            {
+                //Get all transaction from outlay core
+                List<Transaction> listTransactions = new List<Transaction>();
+                listTransactions.AddRange(service.GetTransactions(year, month));
 
-            //Parse for return to dto standar
-            List<WSTransaction> listWSTransaction = new List<WSTransaction>();
+                //Parse for return to dto standar
+                List<WSTransaction> listWSTransaction = new List<WSTransaction>();
 
-            foreach (Transaction transactionFromCore in listTransactions)
-                listWSTransaction.Add(CastObject.ToWSTransaction(transactionFromCore));
+                foreach (Transaction transactionFromCore in listTransactions)
+                    listWSTransaction.Add(CastObject.ToWSTransaction(transactionFromCore));
 
-            return (listWSTransaction.Count == 0) ? (IActionResult)NotFound() : Ok(listWSTransaction);
+                return (listWSTransaction.Count == 0) ? (IActionResult)NotFound() : Ok(listWSTransaction);
+
+            }catch(Exception e)
+            {
+                return StatusCode(statusCode: 500, e.Message);
+            }
         }
 
         [HttpGet("{id}")]
-        public Transaction GetTransaction(int id)
+        [ProducesResponseType(200, Type = typeof(Transaction))]
+        [ProducesResponseType(500)]
+        public IActionResult GetTransaction([Required]int id)
         {
-            return service.GetTransaction(id);
+            try
+            {
+                Transaction transaction = service.GetTransaction(id);
+                return Ok(transaction);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(statusCode: 500, e.Message);
+            }            
         }
 
         [HttpPut]
-        public StateInfo UpdateTransaction([FromBody]WSTransaction transaction)
+        [ProducesResponseType(200, Type = typeof(StateInfo))]
+        [ProducesResponseType(500)]
+        public IActionResult UpdateTransaction([FromBody]WSTransaction transaction)
         {
-            return service.UpdateTransaction(transaction);
+            try
+            {
+                StateInfo result = service.UpdateTransaction(transaction);
+                return Ok(result);
+            }
+            catch(Exception e)
+            {
+                return StatusCode(statusCode: 500, e.Message);
+            } 
         }
 
         [HttpPost]
-        public StateInfo AddTransaction([FromBody]WSTransaction transaction)
+        [ProducesResponseType(200, Type = typeof(StateInfo))]
+        [ProducesResponseType(500)]
+        public IActionResult AddTransaction([FromBody]WSTransaction transaction)
         {
-           return service.AddTransaction(transaction);
+            try
+            {
+                StateInfo resultInfo =  service.AddTransaction(transaction);
+                return Ok(resultInfo);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(statusCode: 500, e.Message);
+            }
         }
                
         [HttpDelete("{id}")]
-        public StateInfo DeleteTransaction(int id)
+        [ProducesResponseType(200, Type = typeof(StateInfo))]
+        [ProducesResponseType(500)]
+        public IActionResult DeleteTransaction(int id)
         {
-            return service.DeleteTransaction(id);
+            try
+            {  
+                StateInfo stateInfo = service.DeleteTransaction(id);
+                return Ok(stateInfo);
+
+            }catch(Exception e)
+            {
+                return StatusCode(statusCode: 500, e.Message);
+            }
         }
     }
 }

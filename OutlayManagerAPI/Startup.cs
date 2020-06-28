@@ -13,6 +13,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using OutlayManagerAPI.Services;
 using OutlayManagerCore.Services;
+using Microsoft.OpenApi.Models;
+
 
 namespace OutlayManagerAPI
 {
@@ -45,6 +47,7 @@ namespace OutlayManagerAPI
                         options.ClientErrorMapping[404].Link = "https://httpstatuses.com/404";
                     });
 
+
             services.AddControllers(config =>
             {
                 //Devuelve un "Not Acceptable" si el dato devuelto no tiene el parseador adecuado
@@ -52,20 +55,35 @@ namespace OutlayManagerAPI
                 config.ReturnHttpNotAcceptable = true;
 
             }).AddXmlDataContractSerializerFormatters();
+
+            //Swagger
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Outlay API Documentation", Version = "v1" });
+            });
+
+            
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            //Swagger configuration
+            app.UseStaticFiles();
+
+            app.UseSwagger();
+
+            app.UseSwaggerUI(c =>
             {
-                app.UseDeveloperExceptionPage();
-            }
-          
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Outlays Manager API Documentation");
+                //c.RoutePrefix = String.Empty;
+            });
+
+           
+
             //app.UseHttpsRedirection();
             app.UseRouting();
-            //app.UseAuthorization();
-
+          
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -76,6 +94,7 @@ namespace OutlayManagerAPI
             {
                 y.Provider = ConfigurationServices.TypesProviders.SQLITE_ON_EF;
                 y.PathConnection = Configuration.GetConnectionString("PathBDConnection");
+                Console.WriteLine($"Connecting with:{y.PathConnection}");
                
             }).InitialiceComponents();
         }

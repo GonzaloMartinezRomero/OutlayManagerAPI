@@ -29,6 +29,11 @@ namespace OutlayManagerAPI.Utilities
 
         public static Transaction ToTransaction(WSTransaction wsTransaction)
         {
+            TransactionDetail.TypeTransaction typeTransaction;
+
+            if (!Enum.TryParse(wsTransaction.DetailTransaction.Type, out typeTransaction))
+                throw new Exception($"Type {wsTransaction.DetailTransaction.Type } is not allowed"); 
+
             return new Transaction()
             {
                 ID = (uint)wsTransaction.ID,
@@ -38,7 +43,7 @@ namespace OutlayManagerAPI.Utilities
                 {
                     Code = wsTransaction.DetailTransaction.Code,
                     Description = wsTransaction.DetailTransaction.Description,
-                    Type = (TransactionDetail.TypeTransaction)Enum.Parse(typeof(TransactionDetail.TypeTransaction), wsTransaction.DetailTransaction.Type)
+                    Type = typeTransaction
                 }
             };
         }

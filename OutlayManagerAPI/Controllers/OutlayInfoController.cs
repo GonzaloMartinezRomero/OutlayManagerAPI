@@ -10,7 +10,7 @@ using OutlayManagerAPI.Services;
 namespace OutlayManagerAPI.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("OutlayInfo")]
     public class OutlayInfoController : Controller
     {
         private readonly IOutlayServiceAPI service;
@@ -22,10 +22,17 @@ namespace OutlayManagerAPI.Controllers
 
         [Route("[action]")]
         [HttpGet]
-        public List<string> TypeOutlays()
+        public IActionResult TypeOutlays()
         {
-            return service.GetTypeOutlays();
+            try
+            {
+                List<string> typeOutlays = service.GetTypeOutlays();
+                return Ok(typeOutlays);
+            }
+            catch (Exception e)
+            {
+                return Problem(detail: e.Message, statusCode: 500, title: "Error while processing type outlays"); 
+            }
         }
-
     }
 }
