@@ -1,20 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Formatters;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 using OutlayManagerAPI.Services;
 using OutlayManagerCore.Services;
-using Microsoft.OpenApi.Models;
-
+using System;
 
 namespace OutlayManagerAPI
 {
@@ -38,15 +30,23 @@ namespace OutlayManagerAPI
 
                 Transient lifetime services are created each time they are requested. This lifetime works best for lightweight, stateless services. 
              */
+            
+            services.AddSingleton<IOutlayServiceAPI, OutlayServiceAPI>(config  => 
+            {
+                OutlayServiceAPI outlayServiceAPI = new OutlayServiceAPI(configurationServiceBD => 
+                {
+                    configurationServiceBD.Provider = ConfigurationServices.TypesProviders.SQLITE_ON_EF;
+                    configurationServiceBD.PathConnection = Configuration.GetConnectionString("PathBDConnection");
+                });
 
-            services.AddSingleton<IOutlayServiceAPI, OutlayServiceAPI>();
+                return outlayServiceAPI;
+            });
 
             services.AddControllers()
                     .ConfigureApiBehaviorOptions(options=> 
-                    {
+                    {   
                         options.ClientErrorMapping[404].Link = "https://httpstatuses.com/404";
                     });
-
 
             services.AddControllers(config =>
             {
@@ -62,12 +62,25 @@ namespace OutlayManagerAPI
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Outlay API Documentation", Version = "v1" });
             });
 
-            
+            //AutoMapper
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());           
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            //if (env.IsDevelopment())
+            //    app.UseDeveloperExceptionPage();
+            //else
+            //    app.UseExceptionHandler();
+
+            app.UseRouting();
+
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+            });
+
             //Swagger configuration
             app.UseStaticFiles();
 
@@ -75,28 +88,8 @@ namespace OutlayManagerAPI
 
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Outlays Manager API Documentation");
-                //c.RoutePrefix = String.Empty;
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Outlays Manager API Documentation");                
             });
-
-           
-
-            //app.UseHttpsRedirection();
-            app.UseRouting();
-          
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
-
-            //Configuration for connect to BD
-            app.ApplicationServices.GetService<IOutlayServiceAPI>().ConfigureOutlayServices(y =>
-            {
-                y.Provider = ConfigurationServices.TypesProviders.SQLITE_ON_EF;
-                y.PathConnection = Configuration.GetConnectionString("PathBDConnection");
-                Console.WriteLine($"Connecting with:{y.PathConnection}");
-               
-            }).InitialiceComponents();
         }
     }
 }

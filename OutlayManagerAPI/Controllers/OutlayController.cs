@@ -4,8 +4,10 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net.Mime;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using OutlayManagerAPI.Model;
+using OutlayManagerAPI.ModelBinder;
 using OutlayManagerAPI.Services;
 using OutlayManagerAPI.Utilities;
 using OutlayManagerCore.Model.ResultInfo;
@@ -17,32 +19,30 @@ namespace OutlayManagerAPI.Controllers
 {
     [ApiController]
     //[Route("[controller]")] -> En caso de tener que refactorizar, el hecho de cambiar el nombre puede producir problemas
-    [Route("Outlay")]
+    [Route("Outlay")] 
     public class OutlayController : ControllerBase
     {
         private readonly IOutlayServiceAPI service;
+        private readonly IMapper mapper;
 
-        public OutlayController(IOutlayServiceAPI service)
+        public OutlayController(IOutlayServiceAPI service, IMapper mapper)
         {
             this.service = service;
+            this.mapper = mapper;
         }
 
         [HttpGet("All")]
         [ProducesResponseType(200,Type = typeof(List<WSTransaction>))]
         [ProducesResponseType(500)]
-        public IActionResult GetAllTransactions()
+        [Produces("application/json")]
+        public ActionResult<List<WSTransaction>> GetAllTransactions()
         {
             try
             {
                 //Get all transaction from outlay core
-                List<Transaction> listTransactions = new List<Transaction>();
-                listTransactions.AddRange(service.GetAllTransactions());
+                List<Transaction> listTransactions = new List<Transaction>(service.GetAllTransactions());
 
-                //Parse for return to dto standar
-                List<WSTransaction> listWSTransaction = new List<WSTransaction>();
-
-                foreach (Transaction transactionFromCore in listTransactions)
-                    listWSTransaction.Add(CastObject.ToWSTransaction(transactionFromCore));
+                List<WSTransaction> listWSTransaction = mapper.Map<List<WSTransaction>>(listTransactions);
 
                 return Ok(listWSTransaction);
 
@@ -67,7 +67,7 @@ namespace OutlayManagerAPI.Controllers
                 List<WSTransaction> listWSTransaction = new List<WSTransaction>();
 
                 foreach (Transaction transactionFromCore in listTransactions)
-                    listWSTransaction.Add(CastObject.ToWSTransaction(transactionFromCore));
+                    listWSTransaction.Add(MapperObject.ToWSTransaction(transactionFromCore));
 
                 return Ok(listWSTransaction);
 
@@ -92,6 +92,38 @@ namespace OutlayManagerAPI.Controllers
                 return StatusCode(statusCode: 500, e.Message);
             }            
         }
+
+        /// <summary>
+        /// .../api/(12,13,14,15)
+        /// </summary>
+        /// <param name="transactionsIDs"></param>
+        /// <returns></returns>
+        [HttpGet("({listTransactionIDs})")]
+        [ProducesResponseType(200, Type = typeof(List<WSTransaction>))]
+        [ProducesResponseType(500)]
+        public IActionResult GetTransacionFromIDsList([ModelBinder(BinderType = typeof(TransactionListModelBinder),Name ="listTransactionIDs")] 
+                                                       IEnumerable<int> transactionsIDs)
+        {
+            //El ModelBinder te permite transformar los parametros de entrada antes de que sean mapeados a los argumentos
+            //de la funcion del controller
+
+            try
+            {
+                List<Transaction> allTransactions = service.GetAllTransactions();
+                HashSet<int> setIDsRequested = new HashSet<int>(transactionsIDs ?? new List<int>());
+
+                IEnumerable<Transaction> transactionsFiltered = allTransactions.Where(x => setIDsRequested.Contains(Convert.ToInt32(x.ID)));
+
+                List<WSTransaction> transactionsDTOs = mapper.Map<List<WSTransaction>>(transactionsFiltered);
+
+                return Ok(transactionsDTOs);
+            }
+            catch(Exception e)
+            {
+                return StatusCode(statusCode: 500, e.Message);
+            }
+        }
+
 
         [HttpPut]
         [ProducesResponseType(200, Type = typeof(StateInfo))]

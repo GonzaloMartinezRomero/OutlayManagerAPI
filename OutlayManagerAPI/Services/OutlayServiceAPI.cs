@@ -14,12 +14,21 @@ namespace OutlayManagerAPI.Services
     {
         private readonly OutlayServices outlayCore;
 
-        public OutlayServiceAPI()
+        public OutlayServiceAPI() 
         {
             outlayCore = new OutlayServices();
         }
 
-        public OutlayServices ConfigureOutlayServices(Action<ConfigurationServices> configuration) => outlayCore.OnConfigure(configuration);
+        public OutlayServiceAPI(Action<ConfigurationServices> configuration): this()
+        {   
+            ConfigureOutlayServices(configuration);
+        }
+
+        public OutlayServices ConfigureOutlayServices(Action<ConfigurationServices> configuration) 
+        {
+           return outlayCore.OnConfigure(configuration)
+                            .InitialiceComponents();
+        } 
 
         public List<Transaction> GetAllTransactions()
         {
@@ -38,13 +47,13 @@ namespace OutlayManagerAPI.Services
 
         public StateInfo UpdateTransaction(WSTransaction transaction)
         {
-            Transaction transactionCore = CastObject.ToTransaction(transaction);
+            Transaction transactionCore = MapperObject.ToTransaction(transaction);
             return outlayCore.UpdateTransaction(transactionCore);
         }
 
         public StateInfo AddTransaction(WSTransaction transaction)
         {
-            Transaction transactionCore = CastObject.ToTransaction(transaction);
+            Transaction transactionCore = MapperObject.ToTransaction(transaction);
             return outlayCore.InsertNewTransaction(transactionCore);
         }
 
