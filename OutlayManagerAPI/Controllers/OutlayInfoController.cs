@@ -34,5 +34,40 @@ namespace OutlayManagerAPI.Controllers
                 return Problem(detail: e.Message, statusCode: 500, title: "Error while processing type outlays"); 
             }
         }
+
+        [Route("[action]")]
+        [HttpGet]
+        public IActionResult CodeList()
+        {
+            try
+            {
+                List<string> codeList = service.GetAllTransactions().Select(x=>x.DetailTransaction.Code)
+                                                                    .Distinct()
+                                                                    .ToList();
+                return Ok(codeList);
+            }
+            catch (Exception e)
+            {
+                return Problem(detail: e.Message, statusCode: 500, title: "Error while processing code list transactions");
+            }
+        }
+
+        [Route("[action]")]
+        [HttpGet]
+        public IActionResult YearsAvailabes()
+        {
+            try
+            {
+                List<int> yearsAvailabes = service.GetAllTransactions().Select(x => x.Date.Year)
+                                                                       .Distinct()
+                                                                       .OrderBy(x=>x)
+                                                                       .ToList();
+                return Ok(yearsAvailabes);
+            }
+            catch (Exception e)
+            {
+                return Problem(detail: e.Message, statusCode: 500, title: "Error while processing years availables");
+            }
+        }
     }
 }

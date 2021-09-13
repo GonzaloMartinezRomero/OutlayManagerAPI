@@ -144,6 +144,7 @@ namespace OutlayManagerAPI.Controllers
         [HttpPost]
         [ProducesResponseType(200, Type = typeof(StateInfo))]
         [ProducesResponseType(500)]
+        [Produces("application/json")]
         public IActionResult AddTransaction([FromBody]WSTransaction transaction)
         {
             try

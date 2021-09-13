@@ -69,8 +69,8 @@ namespace OutlayManagerAPI.Utilities
         {
             TransactionDetail.TypeTransaction typeTransaction;
 
-            if (!Enum.TryParse(wsTransaction.DetailTransaction.Type, out typeTransaction))
-                throw new Exception($"Type {wsTransaction.DetailTransaction.Type } is not allowed"); 
+            if (!Enum.TryParse(wsTransaction?.DetailTransaction?.Type, out typeTransaction))
+                throw new Exception($"Type {wsTransaction.DetailTransaction?.Type } is not allowed"); 
 
             return new Transaction()
             {

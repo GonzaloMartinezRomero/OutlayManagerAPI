@@ -31,7 +31,7 @@ namespace OutlayManagerAPI
                 Transient lifetime services are created each time they are requested. This lifetime works best for lightweight, stateless services. 
              */
             
-            services.AddSingleton<IOutlayServiceAPI, OutlayServiceAPI>(config  => 
+            services.AddTransient<IOutlayServiceAPI, OutlayServiceAPI>(config  => 
             {
                 OutlayServiceAPI outlayServiceAPI = new OutlayServiceAPI(configurationServiceBD => 
                 {
@@ -56,6 +56,16 @@ namespace OutlayManagerAPI
 
             }).AddXmlDataContractSerializerFormatters();
 
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(policy =>
+                {
+                    policy.AllowAnyOrigin();
+                    policy.AllowAnyHeader();
+                    policy.AllowAnyMethod();
+                });
+            });
+
             //Swagger
             services.AddSwaggerGen(c =>
             {
@@ -63,7 +73,7 @@ namespace OutlayManagerAPI
             });
 
             //AutoMapper
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());           
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -75,6 +85,8 @@ namespace OutlayManagerAPI
             //    app.UseExceptionHandler();
 
             app.UseRouting();
+
+            app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {
