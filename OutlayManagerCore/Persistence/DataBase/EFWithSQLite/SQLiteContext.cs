@@ -1,16 +1,18 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Text;
 using OutlayManagerCore.Persistence.DataBase.EFWithSQLite.EntityModel;
+using System;
 
 namespace OutlayManagerCore.Persistence.DataBase.EFWithSQLite
 {
     public class SQLiteContext : DbContext
     {
-        private string pathDataSource;
+        private readonly string pathDataSource;
 
         public DbSet<Transaction> Transaction { get; set; }
+
+        public DbSet<MCodeTransaction> MCodeTransactions { get; set; }
+
+        public DbSet<MTypeTransaction> MTypeTransactions { get; set; }
 
         private SQLiteContext() { }
 

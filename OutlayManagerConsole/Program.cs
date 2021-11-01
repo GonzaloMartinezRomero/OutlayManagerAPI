@@ -25,7 +25,7 @@ namespace OutlayManagerConsole
                 outlayServices.DeleteTransaction(1);
 
 
-                StateInfo state = outlayServices.InsertNewTransaction(new Transaction()
+                StateInfo state = outlayServices.InsertNewTransaction(new TransactionDTO()
                 {
                     Amount = 15.20d,
                     Date = new DateTime(2019, 09, 25),
@@ -60,7 +60,7 @@ namespace OutlayManagerConsole
                     Console.WriteLine("----------------------------");
                 }
 
-                Transaction transactionDelete = myTransactions.Where(x => x.ID == state.ReturnedID).Single();
+                TransactionDTO transactionDelete = myTransactions.Where(x => x.ID == state.ReturnedID).Single();
                 var statusReturned = outlayServices.DeleteTransaction(transactionDelete.ID);
 
                 if (statusReturned.ResultState == StateInfo.State.SUCCESS)

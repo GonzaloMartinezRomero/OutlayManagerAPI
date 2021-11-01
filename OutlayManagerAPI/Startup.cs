@@ -1,12 +1,11 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using OutlayManagerAPI.Services;
-using OutlayManagerCore.Services;
-using System;
+using OutlayManagerAPI.Services.TransactionServices;
+using OutlayManagerCore.Persistence.DataBase.EFWithSQLite;
 
 namespace OutlayManagerAPI
 {
@@ -22,25 +21,12 @@ namespace OutlayManagerAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            /*
-                Singleton which creates a single instance throughout the application. It creates the instance for the first time and reuses the same object in the all calls.
-
-                Scoped lifetime services are created once per request within the scope. It is equivalent to Singleton in the current scope. 
-                eg. in MVC it creates 1 instance per each http request but uses the same instance in the other calls within the same web request.
-
-                Transient lifetime services are created each time they are requested. This lifetime works best for lightweight, stateless services. 
-             */
-            
-            services.AddTransient<IOutlayServiceAPI, OutlayServiceAPI>(config  => 
+            services.AddDbContext<SQLiteContext>(opt =>
             {
-                OutlayServiceAPI outlayServiceAPI = new OutlayServiceAPI(configurationServiceBD => 
-                {
-                    configurationServiceBD.Provider = ConfigurationServices.TypesProviders.SQLITE_ON_EF;
-                    configurationServiceBD.PathConnection = Configuration.GetConnectionString("PathBDConnection");
-                });
-
-                return outlayServiceAPI;
+                opt.UseSqlite(Configuration.GetConnectionString("PathBDConnection"));
             });
+
+            services.AddTransient<ITransactionServices, SQLiteTransactionServices>();            
 
             services.AddControllers()
                     .ConfigureApiBehaviorOptions(options=> 
@@ -71,9 +57,6 @@ namespace OutlayManagerAPI
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Outlay API Documentation", Version = "v1" });
             });
-
-            //AutoMapper
-            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());    
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

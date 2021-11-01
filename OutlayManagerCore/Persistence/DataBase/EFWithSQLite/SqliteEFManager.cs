@@ -1,19 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.EntityFrameworkCore;
-using OutlayManagerCore.Model.OutlayResume;
+﻿using Microsoft.EntityFrameworkCore;
 using OutlayManagerCore.Model.Transaction;
 using OutlayManagerCore.Persistence.DataBase.EFWithSQLite.Utilities;
-using EntityModel = OutlayManagerCore.Persistence.DataBase.EFWithSQLite.EntityModel;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace OutlayManagerCore.Persistence.DataBase.EFWithSQLite
 {
-    internal class SqliteEFManager : IPersistenceServices
+    internal class SqliteEFManager : ITransactionsServices
     {
         private const string DATE_FORMAT = "dd/MM/yyyy";
-        private SQLiteContext contextDB;
+        private readonly SQLiteContext contextDB;
 
         private SqliteEFManager() { }
 
@@ -23,18 +20,21 @@ namespace OutlayManagerCore.Persistence.DataBase.EFWithSQLite
         }
 
         #region Transactions
-        public void SaveTransaction(Model.Transaction.Transaction transaction)
+        public void SaveTransaction(Model.Transaction.TransactionDTO transaction)
         {
+            if (transaction.CodeTransactionID <= 0)
+                throw new Exception($"[{nameof(SaveTransaction)}] {nameof(TransactionDTO.CodeTransactionID)} is mandatory");
+
+            if (transaction.TypeTransactionID <= 0)
+                throw new Exception($"[{nameof(SaveTransaction)}] {nameof(TransactionDTO.TypeTransactionID)} is mandatory");
+
             var newTransaction = new EntityModel.Transaction()
             {
                 Amount = transaction.Amount,
                 Date = transaction.Date.ToString(DATE_FORMAT),
-                TransactionDetail_FK = new EntityModel.DetailTransaction()
-                {
-                    Code = transaction?.DetailTransaction.Code,
-                    Description = transaction?.DetailTransaction.Description,
-                    TypeTransaction = transaction?.DetailTransaction.Type.ToString()
-                }
+                Description = transaction.Description,
+                CodeTransaction_ID = transaction.CodeTransactionID,
+                TypeTransaction_ID = transaction.TypeTransactionID
             };
 
             contextDB.Transaction.Add(newTransaction);
@@ -43,109 +43,116 @@ namespace OutlayManagerCore.Persistence.DataBase.EFWithSQLite
             transaction.ID = (uint)newTransaction.ID;
         }
 
-        public void UpdateTransaction(Transaction transaction)
+        public void UpdateTransaction(TransactionDTO transaction)
         {
-            IEnumerable<EntityModel.Transaction> transactionsBD = from EntityModel.Transaction t
+            EntityModel.Transaction transactionToUpdate = (from EntityModel.Transaction t
                                                                   in contextDB.Transaction
-                                                                              .Include(x => x.TransactionDetail_FK)
+                                                                              .Include(x => x.TypeTransaction)
+                                                                              .Include(x => x.CodeTransaction)
                                                                   where t.ID == transaction.ID
-                                                                  select t;
+                                                                  select t).SingleOrDefault();
 
-            EntityModel.Transaction transactionToUpdate = transactionsBD.SingleOrDefault();
+            if (transactionToUpdate == null)
+                throw new Exception($"[{nameof(UpdateTransaction)}] Requested transaction not exist in DB. ID:{transaction.ID}");
+           
+            transactionToUpdate.Amount = transaction.Amount;
+            transactionToUpdate.Date = transaction.Date.ToString(DATE_FORMAT);
+            transactionToUpdate.CodeTransaction_ID = transaction.CodeTransactionID;
+            transactionToUpdate.Description = transaction.Description;
+            transactionToUpdate.TypeTransaction_ID = transaction.TypeTransactionID;
 
-            if (transactionToUpdate != null)
-            {
-                transactionToUpdate.Amount = transaction.Amount;
-                transactionToUpdate.Date = transaction.Date.ToString(DATE_FORMAT);
-                transactionToUpdate.TransactionDetail_FK.Code = transaction.DetailTransaction.Code;
-                transactionToUpdate.TransactionDetail_FK.Description = transaction.DetailTransaction.Description;
-                transactionToUpdate.TransactionDetail_FK.TypeTransaction = transaction.DetailTransaction.Type.ToString();
-
-                contextDB.SaveChanges();
-            }
+            contextDB.SaveChanges();            
         }
 
-
-        public Model.Transaction.Transaction GetTransaction(uint transactionID)
+        public Model.Transaction.TransactionDTO GetTransaction(uint transactionID)
         {
-            IEnumerable<Model.Transaction.Transaction> transactionsBD = from EntityModel.Transaction t
-                                                                        in contextDB.Transaction
-                                                                                    .Include(x => x.TransactionDetail_FK)
-                                                                                     .AsNoTracking()
-                                                                        where t.ID == transactionID
-                                                                        select Casting.ToModelTransaction(t);
+            Model.Transaction.TransactionDTO transaction = (from EntityModel.Transaction t
+                                                            in contextDB.Transaction
+                                                                        .AsNoTracking()
+                                                                        .Include(x => x.TypeTransaction)
+                                                                        .Include(x => x.CodeTransaction)
+                                                            where t.ID == transactionID
+                                                            select t)
+                                                            .SingleOrDefault()
+                                                            .ToTransactionDTO();
 
-            return transactionsBD.SingleOrDefault() ?? new Model.Transaction.Transaction();
+            return transaction;
         }
 
-        public IEnumerable<Model.Transaction.Transaction> GetTransactions(int year, int month)
+        public List<Model.Transaction.TransactionDTO> GetTransactions(int year, int month)
         {
-            var transactionsBD = (from EntityModel.Transaction t
-                                  in contextDB.Transaction
-                                              .Include(x => x.TransactionDetail_FK)
-                                              .AsNoTracking()
-                                  select t)
-                                  .AsEnumerable()
-                                  .Where(t => t.Date.ToDateTime().Year == year && t.Date.ToDateTime().Month == month)
-                                  .Select(x => Casting.ToModelTransaction(x));
+            List<TransactionDTO> transactionsBD = (from EntityModel.Transaction t
+                                                   in contextDB.Transaction
+                                                               .AsNoTracking()
+                                                               .Include(x => x.TypeTransaction)
+                                                               .Include(x => x.CodeTransaction)
+                                                   select t)
+                                                   .ToList()
+                                                   .Where(t =>
+                                                   {
+                                                       DateTime dateParsed = t.Date.ToDateTime();
+                                                       return dateParsed.Year == year && dateParsed.Month == month;
+                                                   })
+                                                   .Select(x => x.ToTransactionDTO())
+                                                   .ToList();
 
             return transactionsBD;
         }
 
-        public IEnumerable<Model.Transaction.Transaction> GetAllTransactions()
+        public List<Model.Transaction.TransactionDTO> GetAllTransactions()
         {
-            var transactionsBD = (from EntityModel.Transaction t
-                                   in contextDB.Transaction
-                                               .Include(x => x.TransactionDetail_FK)
-                                               .AsNoTracking()
-                                  select t)
-                                   .AsEnumerable()
-                                   .Select(x => Casting.ToModelTransaction(x));
+            List<TransactionDTO> transactionsBD = (from EntityModel.Transaction t
+                                                    in contextDB.Transaction
+                                                                .AsNoTracking()
+                                                                .Include(x => x.TypeTransaction)
+                                                                .Include(x => x.CodeTransaction)
+                                                   select t)
+                                                    .ToList()
+                                                    .Select(x => x.ToTransactionDTO())
+                                                    .ToList();
 
             return transactionsBD;
         }
 
         public void DeleteTransaction(uint transactionID)
         {
-            IEnumerable<EntityModel.Transaction> transactionsBD = from EntityModel.Transaction t
-                                                                  in contextDB.Transaction
-                                                                              .Include(x => x.TransactionDetail_FK)
-                                                                  where t.ID == transactionID
-                                                                  select t;
-
-            EntityModel.Transaction transactionToDelete = transactionsBD.SingleOrDefault();
-
-            if (transactionToDelete != null)
-            {
-                contextDB.Transaction.Remove(transactionToDelete);
-                contextDB.SaveChanges();
-            }
+            EntityModel.Transaction transactionToDelete = (from EntityModel.Transaction t
+                                                          in contextDB.Transaction
+                                                           where t.ID == transactionID
+                                                           select t)
+                                                          .SingleOrDefault() ?? throw new Exception($"[{nameof(DeleteTransaction)}]: Transaction ID:{transactionID} not found");
+        
+        
+            contextDB.Transaction.Remove(transactionToDelete);
+            contextDB.SaveChanges();        
         }
-        #endregion
-
-        #region OutalayResume
-        public IEnumerable<OutlayResume> OutlayResume()
-        {
-            throw new NotImplementedException();
-        }
-
-        public OutlayResume OutlayResume(int year, int month)
-        {
-            throw new NotImplementedException();
-        }
-
-        public void SaveConsolidateMonth(OutlayResume outlayResume)
-        {
-            throw new NotImplementedException();
-        }
-
-        #endregion
+        #endregion      
 
         public void Dispose()
         {
             this.contextDB.Dispose();
         }
 
-      
+        public List<CodeTransactionDTO> GetMCodeTransactions()
+        {
+            List<CodeTransactionDTO> codesTransactionsBD = (from EntityModel.MCodeTransaction codes
+                                                     in contextDB.MCodeTransactions
+                                                   select codes)
+                                                   .ToList()
+                                                   .Select(x=>x.ToCodeTransactionDTO())
+                                                   .ToList();
+            return codesTransactionsBD;
+        }
+
+        public List<TypeTransactionDTO> GetMTypeTransactions()
+        {
+            List<TypeTransactionDTO> typesTransactionsBD = (from EntityModel.MTypeTransaction types
+                                                     in contextDB.MTypeTransactions
+                                                            select types)
+                                                   .ToList()
+                                                   .Select(x => x.ToTypeTransactionDTO())
+                                                   .ToList();
+            return typesTransactionsBD;
+        }
     }
 }

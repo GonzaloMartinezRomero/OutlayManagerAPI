@@ -1,28 +1,39 @@
-﻿using OutlayManagerCore.Model.Transaction;
+﻿using OutlayManagerAPI.Model;
+using OutlayManagerCore.Persistence.DataBase.EFWithSQLite.EntityModel;
 using System;
 
-namespace OutlayManagerCore.Persistence.DataBase.EFWithSQLite.Utilities
+namespace OutlayManagerCore.Utilities
 {
-    internal static class Casting
+    public static class TransactionExtesionMethods
     {
-        public static TransactionDTO ToTransactionDTO(this EntityModel.Transaction entityTransaction)
+        public static DateTime ToDateTime(this string str)
         {
-            return (entityTransaction == null) 
-                            ? new Model.Transaction.TransactionDTO() 
-                            : new Model.Transaction.TransactionDTO()
+            DateTime result = default;
+
+            if (!String.IsNullOrEmpty(str) && !DateTime.TryParse(str, out result))
+                throw new Exception("Imposible to cast to DateTime");
+
+            return result;
+        }
+
+        public static TransactionDTO ToTransactionDTO(this TransactionOutlay entityTransaction)
+        {
+            return (entityTransaction == null)
+                            ? new TransactionDTO()
+                            : new TransactionDTO()
                             {
                                 ID = (uint)entityTransaction.ID,
                                 Amount = entityTransaction.Amount,
-                                Date = entityTransaction.Date.ToDateTime(),
-                                CodeTransaction  = entityTransaction.CodeTransaction?.Code,
+                                Date = entityTransaction.DateTransaction.ToDateTime(),
+                                CodeTransaction = entityTransaction.CodeTransaction?.Code,
                                 CodeTransactionID = entityTransaction.CodeTransaction_ID,
                                 TypeTransaction = entityTransaction.TypeTransaction?.Type,
                                 TypeTransactionID = entityTransaction.TypeTransaction_ID,
                                 Description = entityTransaction.Description
                             };
         }
-        
-        public static CodeTransactionDTO ToCodeTransactionDTO(this EntityModel.MCodeTransaction entityCodeTransaction)
+
+        public static CodeTransactionDTO ToCodeTransactionDTO(this MCodeTransaction entityCodeTransaction)
         {
             return (entityCodeTransaction == null)
                         ? new CodeTransactionDTO()
@@ -34,7 +45,7 @@ namespace OutlayManagerCore.Persistence.DataBase.EFWithSQLite.Utilities
 
         }
 
-        public static TypeTransactionDTO ToTypeTransactionDTO(this EntityModel.MTypeTransaction entityTypeTransaction)
+        public static TypeTransactionDTO ToTypeTransactionDTO(this MTypeTransaction entityTypeTransaction)
         {
             return (entityTypeTransaction == null)
                         ? new TypeTransactionDTO()
