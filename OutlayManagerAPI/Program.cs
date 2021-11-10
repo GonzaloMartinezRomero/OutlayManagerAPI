@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using OutlayManagerAPI.AppConfiguration;
 
 namespace OutlayManagerAPI
 {
@@ -11,9 +12,11 @@ namespace OutlayManagerAPI
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)// Enable appsetting.{ENVIRONMENT}.json
+            Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    //Te permite cargar la config desde el proceso que lo ejecuta en lugar de las variables de la maquina
+                    webBuilder.UseCurrentProcessEnvironment();
                     webBuilder.UseStartup<Startup>();                   
                 });
     }
