@@ -80,6 +80,8 @@ namespace OutlayManagerAPI.Services.TransactionServices
 
         public List<TransactionDTO> GetTransactions(int year, int month)
         {
+            bool loadCompleteYear = month == 0;
+
             List<TransactionDTO> transactionsBD = (from TransactionOutlay t
                                                    in _contextDB.TransactionOutlay.AsNoTracking()
                                                                .AsNoTracking()
@@ -90,7 +92,11 @@ namespace OutlayManagerAPI.Services.TransactionServices
                                                    .Where(t =>
                                                    {
                                                        DateTime dateParsed = t.DateTransaction.ToDateTime();
-                                                       return dateParsed.Year == year && dateParsed.Month == month;
+
+                                                       if (loadCompleteYear)
+                                                           return dateParsed.Year == year;
+                                                       else
+                                                           return dateParsed.Year == year && dateParsed.Month == month;
                                                    })
                                                    .Select(x => x.ToTransactionDTO())
                                                    .ToList();

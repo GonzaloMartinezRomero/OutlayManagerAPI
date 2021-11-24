@@ -43,13 +43,10 @@ namespace OutlayManagerAPI.Controllers
         [ProducesResponseType(500)]
         [ProducesResponseType(400)]
         [Produces("application/json")]
-        public ActionResult GetTransactions([Required]int year,[Required] int month)
+        public ActionResult GetTransactions([Required]int year, int month)
         {
             try
             {
-                if (!(year > 2000 && month >= 1 && month <= 12))
-                    return BadRequest();
-
                 //Get all transaction from outlay core
                 List<TransactionDTO> listTransactions = _transactionService.GetTransactions(year, month);
 
