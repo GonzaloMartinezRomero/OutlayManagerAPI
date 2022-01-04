@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OutlayManagerAPI.Model;
 using OutlayManagerAPI.Services.TransactionServices;
 using System;
@@ -10,7 +11,8 @@ using System.ComponentModel.DataAnnotations;
 namespace OutlayManagerAPI.Controllers
 {
     [ApiController]    
-    [Route("Transaction")] 
+    [Route("Transaction")]
+    [Authorize]
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionServices _transactionService;       
@@ -22,7 +24,7 @@ namespace OutlayManagerAPI.Controllers
 
         [HttpGet("All")]
         [ProducesResponseType(200,Type = typeof(List<TransactionDTO>))]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [Produces("application/json")]
         public ActionResult<List<TransactionDTO>> GetAllTransactions()
         {
@@ -34,13 +36,13 @@ namespace OutlayManagerAPI.Controllers
 
             }catch(Exception e)
             {
-                return StatusCode(statusCode: 500, e.Message);
+                return Problem(e.Message);
             }
         }
 
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(List<TransactionDTO>))]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [ProducesResponseType(400)]
         [Produces("application/json")]
         public ActionResult GetTransactions([Required]int year, int month)
@@ -54,14 +56,14 @@ namespace OutlayManagerAPI.Controllers
 
             }catch(Exception e)
             {
-                return StatusCode(statusCode: 500, e.Message);
+                return Problem(e.Message);
             }
         }
 
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(TransactionDTO))]
-        [ProducesResponseType(500)]
-        [ProducesResponseType(400)]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(400, Type= typeof(BadRequestResult))]
         [Produces("application/json")]
         public ActionResult GetTransaction([Required]int id)
         {
@@ -77,13 +79,13 @@ namespace OutlayManagerAPI.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(statusCode: 500, e.Message);
+                return Problem(e.Message);
             }            
         }
 
         [HttpPut]
         [ProducesResponseType(200)]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [Produces("application/json")]
         public ActionResult UpdateTransaction([FromBody]TransactionDTO transaction)
         {
@@ -94,13 +96,13 @@ namespace OutlayManagerAPI.Controllers
             }
             catch(Exception e)
             {
-                return StatusCode(statusCode: 500, e.Message);
+                return Problem(e.Message);
             } 
         }
 
         [HttpPost()]
         [ProducesResponseType(200)]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [Produces("application/json")]
         public ActionResult AddTransaction([FromBody]TransactionDTO transaction)
         {
@@ -111,13 +113,13 @@ namespace OutlayManagerAPI.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(statusCode: 500, e.Message);
+                return Problem(e.Message);
             }
         }
                
         [HttpDelete("{id}")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         public ActionResult DeleteTransaction(int id)
         {
             try
@@ -132,13 +134,13 @@ namespace OutlayManagerAPI.Controllers
 
             }catch(Exception e)
             {
-                return StatusCode(statusCode: 500, e.Message);
+                return Problem(e.Message);
             }
         }
 
         [HttpPost("TransactionCode")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [Produces("application/json")]
         public ActionResult AddTransactionCode([FromBody]CodeTransactionDTO codeTransactionDTO)
         {
@@ -149,20 +151,21 @@ namespace OutlayManagerAPI.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(statusCode: 500, e.Message);
+                return Problem(e.Message);
             }
         }
 
         [HttpDelete("TransactionCode/{Id}")]
         [ProducesResponseType(200)]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(400, Type = typeof(BadRequestResult))]
         [Produces("application/json")]
         public ActionResult DeleteTransactionCode(int Id)
         {
             try
             {
                 if (Id <= 0)
-                    return BadRequest();
+                    return BadRequest("ID must by greater than 0");
 
                 uint idParsed = (uint)Id;
 
@@ -171,9 +174,8 @@ namespace OutlayManagerAPI.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(statusCode: 500, e.Message);
+                return Problem(e.Message);
             }
         }
-
     }
 }

@@ -3,7 +3,6 @@ using OutlayManagerAPI.Model;
 using OutlayManagerAPI.Services.TransactionServices;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -21,7 +20,7 @@ namespace OutlayManagerAPI.Controllers
         }
 
         [ProducesResponseType(200, Type = typeof(List<TypeTransactionDTO>))]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [Route("[action]")]
         [Produces("application/json")]
         [HttpGet]
@@ -34,12 +33,12 @@ namespace OutlayManagerAPI.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(statusCode: 500, e.Message);
+                return Problem(e.Message);
             }
         }
 
         [ProducesResponseType(200, Type = typeof(List<TypeTransactionDTO>))]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [Route("[action]")]
         [Produces("application/json")]
         [HttpGet]
@@ -52,12 +51,12 @@ namespace OutlayManagerAPI.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(statusCode: 500, e.Message);
+                return Problem(e.Message);
             }
         }
 
         [ProducesResponseType(200, Type = typeof(List<int>))]
-        [ProducesResponseType(500)]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [Route("[action]")]
         [Produces("application/json")]
         [HttpGet]
@@ -70,7 +69,7 @@ namespace OutlayManagerAPI.Controllers
             }
             catch (Exception e)
             {
-                return StatusCode(statusCode: 500, e.Message);
+                return Problem(e.Message);
             }
         }
     }

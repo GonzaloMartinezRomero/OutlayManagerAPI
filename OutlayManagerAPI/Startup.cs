@@ -3,11 +3,11 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using OutlayManagerAPI.AppConfiguration;
+using OutlayManagerAPI.Services.AuthenticationServices;
 using OutlayManagerAPI.Services.TransactionServices;
 using OutlayManagerCore.Persistence.DataBase.EFWithSQLite;
-using System;
 
 namespace OutlayManagerAPI
 {
@@ -23,14 +23,13 @@ namespace OutlayManagerAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            var a= Configuration.GetConnectionString("PathBDConnection");
-
             services.AddDbContext<SQLiteContext>(opt =>
             {
                 opt.UseSqlite(Configuration.GetConnectionString("PathBDConnection"));
             });
 
             services.AddTransient<ITransactionServices, SQLiteTransactionServices>();            
+            services.AddTransient<IAuthenticationService, IdentityService>();            
 
             services.AddControllers()
                     .ConfigureApiBehaviorOptions(options=> 
@@ -46,13 +45,23 @@ namespace OutlayManagerAPI
 
             }).AddXmlDataContractSerializerFormatters();
 
+            services.AddAuthentication("Bearer")
+                    .AddJwtBearer("Bearer", opt =>
+                    {
+                        opt.Authority = "https://localhost:6001";
+                        opt.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateAudience = false
+                        };
+                    });    
+
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(policy =>
                 {
                     policy.AllowAnyOrigin();
                     policy.AllowAnyHeader();
-                    policy.AllowAnyMethod();
+                    policy.AllowAnyMethod();                    
                 });
             });
 
@@ -67,6 +76,9 @@ namespace OutlayManagerAPI
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             app.UseRouting();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.UseCors();
 
