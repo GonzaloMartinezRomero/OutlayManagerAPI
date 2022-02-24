@@ -1,12 +1,7 @@
-﻿using IdentityModel.Client;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using OutlayManagerAPI.Model.UserAuthentication;
 using OutlayManagerAPI.Services.AuthenticationServices;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace OutlayManagerAPI.Controllers
@@ -25,12 +20,12 @@ namespace OutlayManagerAPI.Controllers
         [Produces("application/json")]
         [ProducesResponseType(200, Type = typeof(AuthenticationCredentials))]
         [ProducesResponseType(500, Type= typeof(ProblemDetails))]
-        [ProducesResponseType(401, Type = typeof(UnauthorizedObjectResult))]
-        public IActionResult Authenticate([FromBody]UserCredential userCredential)
+        [ProducesResponseType(401)]
+        public async Task<IActionResult> Authenticate([FromBody]UserCredential userCredential)
         {
             try 
             {
-                AuthenticationCredentials authenticationCredentials = this._authenticationService.Authenticate(userCredential);
+                AuthenticationCredentials authenticationCredentials = await this._authenticationService.Authenticate(userCredential);
                 return Ok(authenticationCredentials);
             }
             catch(UnauthorizedAccessException)
@@ -41,6 +36,6 @@ namespace OutlayManagerAPI.Controllers
             {
                 return Problem(detail: e.Message);
             }
-        }
+        }    
     }
 }

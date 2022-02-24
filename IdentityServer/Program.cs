@@ -35,7 +35,13 @@ namespace IdentityServer
             try
             {
                 Log.Information("Starting host...");
-                CreateHostBuilder(args).Build().Run();
+                CreateHostBuilder(args)
+                    .ConfigureWebHostDefaults(config=> 
+                    {
+                        config.UseUrls(new string[] { "https://localhost:6001" });
+                    })
+                    .Build()
+                    .Run();
                 return 0;
             }
             catch (Exception ex)

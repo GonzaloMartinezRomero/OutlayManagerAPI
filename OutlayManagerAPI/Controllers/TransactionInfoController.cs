@@ -1,8 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using OutlayManagerAPI.Model;
-using OutlayManagerAPI.Services.TransactionServices;
+using OutlayManagerAPI.Services.TransactionInfoServices;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,24 +13,27 @@ namespace OutlayManagerAPI.Controllers
     [Route("TransactionInfo")]
     public class TransactionInfoController : Controller
     {
-        private readonly ITransactionServices _transactionService;
+        private readonly ITransactionInfoService _transactionInfoService;
 
-        public TransactionInfoController(ITransactionServices transactionService)
+        public TransactionInfoController(ITransactionInfoService transactionInfoService)
         {
-            this._transactionService = transactionService;
+            this._transactionInfoService = transactionInfoService;            
         }
 
+        /// <summary>
+        /// Transactions types
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("TransactionTypes")]
         [ProducesResponseType(200, Type = typeof(List<TypeTransactionDTO>))]
-        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
-        [Route("[action]")]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]        
         [Produces("application/json")]
-        [HttpGet]
-        public ActionResult<List<TypeTransactionDTO>> TransactionTypes()
+        public async Task<IActionResult> TransactionTypes()
         {
             try
             {
-                List<TypeTransactionDTO> transactionTypeList = this._transactionService.GetMTypeTransactions();
-                return Ok(transactionTypeList);
+                List<TypeTransactionDTO> transactionsTypes = await this._transactionInfoService.TransactionsTypes();
+                return Ok(transactionsTypes);
             }
             catch (Exception e)
             {
@@ -37,34 +41,19 @@ namespace OutlayManagerAPI.Controllers
             }
         }
 
-        [ProducesResponseType(200, Type = typeof(List<TypeTransactionDTO>))]
-        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
-        [Route("[action]")]
-        [Produces("application/json")]
-        [HttpGet]
-        public ActionResult<List<CodeTransactionDTO>> TransactionCodes()
-        {
-            try
-            {
-                List<CodeTransactionDTO> codeTransactionsList = this._transactionService.GetMCodeTransactions();
-                return Ok(codeTransactionsList);
-            }
-            catch (Exception e)
-            {
-                return Problem(e.Message);
-            }
-        }
-
+        /// <summary>
+        /// Gets years with registered transactions
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("YearsAvailables")]
         [ProducesResponseType(200, Type = typeof(List<int>))]
-        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
-        [Route("[action]")]
-        [Produces("application/json")]
-        [HttpGet]
-        public ActionResult<List<int>> YearsAvailabes()
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]        
+        [Produces("application/json")]        
+        public async Task<IActionResult> YearsAvailabes()
         {
             try
             {
-                List<int> yearsAvailabes = this._transactionService.GetYearsAvailabes();
+                List<int> yearsAvailabes = await this._transactionInfoService.YearsAvailabes();
                 return Ok(yearsAvailabes);
             }
             catch (Exception e)

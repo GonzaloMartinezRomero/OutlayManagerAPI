@@ -20,25 +20,24 @@ namespace OutlayManagerAPI.Services.AuthenticationServices
             this.configurationApp = appConfiguration;
         }
 
-        public AuthenticationCredentials Authenticate(UserCredential userCredentials)
+        public async Task<AuthenticationCredentials> Authenticate(UserCredential userCredentials)
         {
             string identityServerURL = configurationApp.GetValue<string>(APP_CONFIG_KEY_IDSERVER_URL);
 
             HttpClient httpClient = new HttpClient();
 
-            DiscoveryDocumentResponse idServerDocument = httpClient.GetDiscoveryDocumentAsync(identityServerURL).Result;
+            DiscoveryDocumentResponse idServerDocument = await httpClient.GetDiscoveryDocumentAsync(identityServerURL);
 
             if (idServerDocument.IsError)
                 throw new Exception(idServerDocument.Error);
 
-            TokenResponse tokenResponse = httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest()
+            TokenResponse tokenResponse = await httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest()
             {
                 Address = idServerDocument.TokenEndpoint,
                 ClientId = userCredentials.UserName,
                 ClientSecret = userCredentials.Password,
                 Scope = API_SCOPE
-
-            }).Result;
+            });
 
             if (tokenResponse.IsError)
                 throw new UnauthorizedAccessException(tokenResponse.Error);

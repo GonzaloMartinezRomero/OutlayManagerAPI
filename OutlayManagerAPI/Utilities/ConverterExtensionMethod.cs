@@ -1,10 +1,10 @@
 ﻿using OutlayManagerAPI.Model;
-using OutlayManagerCore.Persistence.DataBase.EFWithSQLite.EntityModel;
+using OutlayManagerCore.Persistence.Model;
 using System;
 
 namespace OutlayManagerCore.Utilities
 {
-    public static class TransactionExtesionMethods
+    public static class ConverterExtensionMethod
     {
         public static DateTime ToDateTime(this string str)
         {
@@ -55,6 +55,14 @@ namespace OutlayManagerCore.Utilities
                             Type = entityTypeTransaction.Type
                         };
 
+        }
+
+        public static UInt32 ToUInt32(this Int32 int32Value)
+        {
+            if (int32Value < 0)
+                return 0;
+
+            return (UInt32)int32Value;
         }
     }
 }

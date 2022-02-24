@@ -5,13 +5,14 @@ using OutlayManagerAPI.Services.TransactionServices;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace OutlayManagerAPI.Controllers
 {
     [ApiController]    
-    [Route("Transaction")]
+    [Route("Transactions")]
     [Authorize]
     public class TransactionController : ControllerBase
     {
@@ -22,155 +23,130 @@ namespace OutlayManagerAPI.Controllers
             this._transactionService = transactionService;
         }
 
-        [HttpGet("All")]
+        /// <summary>
+        /// Return all transactions
+        /// </summary>
+        /// <param name="year"></param>
+        /// <param name="month"></param>
+        /// <returns></returns>
+        [HttpGet("")]
         [ProducesResponseType(200,Type = typeof(List<TransactionDTO>))]
+        [ProducesResponseType(400,Type=typeof(BadRequestObjectResult))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [Produces("application/json")]
-        public ActionResult<List<TransactionDTO>> GetAllTransactions()
-        {
-            try
-            {   
-                List<TransactionDTO> listTransactions = new List<TransactionDTO>(_transactionService.GetAllTransactions());
-
-                return Ok(listTransactions);
-
-            }catch(Exception e)
-            {
-                return Problem(e.Message);
-            }
-        }
-
-        [HttpGet]
-        [ProducesResponseType(200, Type = typeof(List<TransactionDTO>))]
-        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
-        [ProducesResponseType(400)]
-        [Produces("application/json")]
-        public ActionResult GetTransactions([Required]int year, int month)
+        public async Task<IActionResult> Transactions(int? year, int? month)
         {
             try
             {
-                //Get all transaction from outlay core
-                List<TransactionDTO> listTransactions = _transactionService.GetTransactions(year, month);
+                List<TransactionDTO> listTransactions;
+
+                if (month.HasValue && !year.HasValue)
+                    return BadRequest("Year can not be null");
+
+                if (year == null)
+                {
+                    listTransactions = await this._transactionService.Transactions();
+                }
+                else
+                {
+                    int yearNotNullable = year.Value;
+                    int monthNotNullable = month ?? 0;
+
+                    listTransactions = await this._transactionService.Transactions(yearNotNullable,monthNotNullable);
+                }
 
                 return Ok(listTransactions);
 
-            }catch(Exception e)
+            }
+            catch(Exception e)
             {
                 return Problem(e.Message);
             }
-        }
+        }      
 
+        /// <summary>
+        /// Get transaction by ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(TransactionDTO))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
-        [ProducesResponseType(400, Type= typeof(BadRequestResult))]
+        [ProducesResponseType(400, Type = typeof(BadRequestResult))]
         [Produces("application/json")]
-        public ActionResult GetTransaction([Required]int id)
+        public async Task<IActionResult> Transaction([Required] uint id)
         {
             try
             {
-                if (id <= 0)
-                    return BadRequest();
-
-                uint idParsed = (uint)id;
-
-                TransactionDTO transaction = this._transactionService.GetTransaction(idParsed);
+                TransactionDTO transaction = await this._transactionService.Transaction(id);
                 return Ok(transaction);
             }
             catch (Exception e)
             {
                 return Problem(e.Message);
-            }            
+            }
         }
 
+        /// <summary>
+        /// Updates a transaction
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
         [HttpPut]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(200, Type = typeof(TransactionDTO))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [Produces("application/json")]
-        public ActionResult UpdateTransaction([FromBody]TransactionDTO transaction)
+        public async Task<IActionResult> UpdateTransaction([FromBody] TransactionDTO transaction)
         {
             try
             {
-                this._transactionService.UpdateTransaction(transaction);
-                return Ok();
-            }
-            catch(Exception e)
-            {
-                return Problem(e.Message);
-            } 
-        }
-
-        [HttpPost()]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
-        [Produces("application/json")]
-        public ActionResult AddTransaction([FromBody]TransactionDTO transaction)
-        {
-            try
-            {
-                this._transactionService.SaveTransaction(transaction);
-                return Ok();
+                TransactionDTO transactionUpdated = await this._transactionService.UpdateTransaction(transaction);
+                return Ok(transactionUpdated);
             }
             catch (Exception e)
             {
                 return Problem(e.Message);
             }
         }
-               
+
+        /// <summary>
+        /// Create a new transaction
+        /// </summary>
+        /// <param name="transaction"></param>
+        /// <returns></returns>
+        [HttpPost]
+        [ProducesResponseType(200, Type = typeof(UInt32))]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [Produces("application/json")]
+        public async Task<IActionResult> CreateTransaction([FromBody] TransactionDTO transaction)
+        {
+            try
+            {
+                uint id = await this._transactionService.SaveTransaction(transaction);
+                return Ok(id);
+            }
+            catch (Exception e)
+            {
+                return Problem(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Delete transaction 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpDelete("{id}")]
-        [ProducesResponseType(200)]
+        [ProducesResponseType(200, Type = typeof(UInt32))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
-        public ActionResult DeleteTransaction(int id)
+        public async Task<IActionResult> DeleteTransaction(uint id)
         {
             try
             {
-                if (id <= 0)
-                    return BadRequest();
+                uint deletedID = await this._transactionService.DeleteTransaction(id);
 
-                uint idParsed = (uint)id;
+                return Ok(deletedID);
 
-                this._transactionService.DeleteTransaction(idParsed);
-                return Ok();
-
-            }catch(Exception e)
-            {
-                return Problem(e.Message);
-            }
-        }
-
-        [HttpPost("TransactionCode")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
-        [Produces("application/json")]
-        public ActionResult AddTransactionCode([FromBody]CodeTransactionDTO codeTransactionDTO)
-        {
-            try
-            {
-                this._transactionService.AddTransactionCode(codeTransactionDTO);
-                return Ok();
-            }
-            catch (Exception e)
-            {
-                return Problem(e.Message);
-            }
-        }
-
-        [HttpDelete("TransactionCode/{Id}")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
-        [ProducesResponseType(400, Type = typeof(BadRequestResult))]
-        [Produces("application/json")]
-        public ActionResult DeleteTransactionCode(int Id)
-        {
-            try
-            {
-                if (Id <= 0)
-                    return BadRequest("ID must by greater than 0");
-
-                uint idParsed = (uint)Id;
-
-                this._transactionService.DeleteTransactionCode(idParsed);
-                return Ok();
             }
             catch (Exception e)
             {

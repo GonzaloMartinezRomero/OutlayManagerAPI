@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace OutlayManagerCore.Persistence.DataBase.EFWithSQLite.EntityModel
+namespace OutlayManagerCore.Persistence.Model
 {
     public class TransactionOutlay : Entity
     {

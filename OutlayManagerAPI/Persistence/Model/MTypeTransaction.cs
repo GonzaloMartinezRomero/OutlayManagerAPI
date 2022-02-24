@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace OutlayManagerCore.Persistence.DataBase.EFWithSQLite.EntityModel
+namespace OutlayManagerCore.Persistence.Model
 {
     public class MTypeTransaction:Entity
     {

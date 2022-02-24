@@ -8,6 +8,6 @@ namespace OutlayManagerAPI.Services.AuthenticationServices
 {
     public interface IAuthenticationService
     {
-        AuthenticationCredentials Authenticate(UserCredential userCredentials);
+        Task<AuthenticationCredentials> Authenticate(UserCredential userCredentials);
     }
 }

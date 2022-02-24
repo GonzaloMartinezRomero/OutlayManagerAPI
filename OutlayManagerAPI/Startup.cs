@@ -1,13 +1,17 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OutlayManagerAPI.Persistence;
 using OutlayManagerAPI.Services.AuthenticationServices;
+using OutlayManagerAPI.Services.TransactionCodeService;
+using OutlayManagerAPI.Services.TransactionInfoServices;
 using OutlayManagerAPI.Services.TransactionServices;
-using OutlayManagerCore.Persistence.DataBase.EFWithSQLite;
+using OutlayManagerAPI.Utilities;
+using OutlayManagerCore.Persistence.SQLite;
+using System.Collections.Generic;
 
 namespace OutlayManagerAPI
 {
@@ -23,12 +27,14 @@ namespace OutlayManagerAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<SQLiteContext>(opt =>
+            services.AddTransient<IDBEntityContext>(impl=> 
             {
-                opt.UseSqlite(Configuration.GetConnectionString("PathBDConnection"));
+                string connectionString = Configuration.GetValue<string>(ApplicationConstants.CONNECTION_STRING_CONFIG_KEY);
+                return new SQLiteContext(connectionString);
             });
-
-            services.AddTransient<ITransactionServices, SQLiteTransactionServices>();            
+            services.AddTransient<ITransactionServices, TransactionServices>();
+            services.AddTransient<ITransactionCodeService, TransactionCodeService>();
+            services.AddTransient<ITransactionInfoService, TransactionInfoService>();
             services.AddTransient<IAuthenticationService, IdentityService>();            
 
             services.AddControllers()
@@ -69,6 +75,32 @@ namespace OutlayManagerAPI
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Outlay API Documentation", Version = "v1" });
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer",
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization scheme"
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                                {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                                },
+                                Scheme = "oauth2",
+                                Name = "Bearer",
+                                In = ParameterLocation.Header,
+
+                        },
+                        new List<string>()
+                    }
+                });
             });
         }
 
