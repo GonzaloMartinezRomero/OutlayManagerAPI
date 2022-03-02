@@ -18,6 +18,54 @@ namespace OutlayManagerAPI.Services.TransactionInfoServices
             this._contextDB = contextDB;
         }
 
+        public async Task<List<AmountResume>> AmountResumes()
+        {
+            List<AmountResume> amountResumes = new List<AmountResume>();
+
+            List<TransactionOutlay> transactions = await _contextDB.TransactionOutlay.Include(x=>x.TypeTransaction)
+                                                                                     .AsNoTracking()
+                                                                                     .ToListAsync();
+
+            var transactionsGroup = transactions.GroupBy(key =>
+            {
+                TransactionDTO transactionAux = key.ToTransactionDTO();
+                TransactionKey trKey = new TransactionKey(transactionAux.Date.Year,
+                                                          transactionAux.Date.Month);
+
+                return trKey;
+            });
+
+            double currentTotalAmount = 0.0d;
+
+            foreach (var transactionGroupAux in transactionsGroup)
+            {
+                foreach(var transactionsAux in transactionGroupAux)
+                {
+                    switch (transactionsAux.TypeTransaction.Type)
+                    {
+                        case "SPENDING":
+                            currentTotalAmount -= transactionsAux.Amount;
+                            break;
+
+                        default:
+                            currentTotalAmount += transactionsAux.Amount;
+                            break;
+                    }
+                }
+
+                TransactionKey key = transactionGroupAux.Key;
+
+                amountResumes.Add(new AmountResume()
+                {
+                    Year = key.Year,
+                    Month = key.Month,
+                    Amount = currentTotalAmount
+                });
+            }
+
+            return amountResumes;
+        }
+
         public async Task<List<TypeTransactionDTO>> TransactionsTypes()
         {
             List<TypeTransactionDTO> typesTransactionsBD = (await (from MTypeTransaction types
@@ -40,6 +88,42 @@ namespace OutlayManagerAPI.Services.TransactionInfoServices
                                                                         .ToList();
 
             return yearAvailables;
+        }
+
+        private sealed class TransactionKey
+        {
+            public int Year { get; set; }
+            public int Month { get; set; }
+
+            private TransactionKey() { }
+
+            public TransactionKey(int year, int month) 
+            {
+                this.Year = year;
+                this.Month = month;
+            }
+
+            public override bool Equals(object obj)
+            {
+                if(obj is TransactionKey transactionAux)
+                {
+                    return this.Year == transactionAux.Year &&
+                           this.Month == transactionAux.Month;
+                }
+
+                return false;
+            }
+
+            public override int GetHashCode()
+            {
+                return this.ToString().GetHashCode();
+            }
+
+            public override string ToString()
+            {
+                return $"{Year.ToString()}{Month.ToString()}";
+            }
+
         }
     }
 }

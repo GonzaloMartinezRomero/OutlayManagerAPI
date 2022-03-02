@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using OutlayManagerAPI.Model;
 using OutlayManagerAPI.Services.TransactionInfoServices;
 using System;
@@ -57,6 +58,28 @@ namespace OutlayManagerAPI.Controllers
                 return Ok(yearsAvailabes);
             }
             catch (Exception e)
+            {
+                return Problem(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Gets the total amount per month and year. Show the total amount progression along the time
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("AmountResumes")]
+        [ProducesResponseType(200, Type = typeof(List<AmountResume>))]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [Produces("application/json")]
+        [Authorize]
+        public async Task<IActionResult> AmountResumes()
+        {
+            try
+            {
+                List<AmountResume> amountResumes = await _transactionInfoService.AmountResumes();
+                return Ok(amountResumes);
+            }
+            catch(Exception e)
             {
                 return Problem(e.Message);
             }

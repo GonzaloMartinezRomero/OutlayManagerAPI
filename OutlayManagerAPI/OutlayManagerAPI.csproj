@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UserSecretsId>c83950b9-c612-470a-9edf-6810760bddfb</UserSecretsId>
+    <SonarQubeExclude>True</SonarQubeExclude>
+    <SonarQubeTestProject>True</SonarQubeTestProject>
   </PropertyGroup>
 
   <ItemGroup>
