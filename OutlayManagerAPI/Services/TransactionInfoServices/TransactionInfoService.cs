@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using OutalyManager.Cache.Abstract;
 using OutlayManagerAPI.Model;
 using OutlayManagerAPI.Persistence;
 using OutlayManagerCore.Persistence.Model;
@@ -11,11 +13,18 @@ namespace OutlayManagerAPI.Services.TransactionInfoServices
 {
     public class TransactionInfoService : ITransactionInfoService
     {
-        private readonly IDBEntityContext _contextDB;
+        private const string KEY_CACHE_TRANSACTION_TYPES = "TransactionTypes";
+        private const string KEY_CACHE_YEARS_AVAILABLES = "YearsAvailables";
 
-        public TransactionInfoService(IDBEntityContext contextDB)
+        private readonly IOutlayDBContext _contextDB;
+        private readonly IOutlayManagerCache _cache;
+        private readonly ILogger<TransactionInfoService> _log;
+
+        public TransactionInfoService(IOutlayDBContext contextDB, IOutlayManagerCache cache, ILogger<TransactionInfoService> log)
         {
             this._contextDB = contextDB;
+            this._cache = cache;
+            this._log = log;
         }
 
         public async Task<List<AmountResume>> AmountResumes()
@@ -68,26 +77,50 @@ namespace OutlayManagerAPI.Services.TransactionInfoServices
 
         public async Task<List<TypeTransactionDTO>> TransactionsTypes()
         {
-            List<TypeTransactionDTO> typesTransactionsBD = (await (from MTypeTransaction types
+            List<TypeTransactionDTO> cachedValues = _cache.GetValue<List<TypeTransactionDTO>>(KEY_CACHE_TRANSACTION_TYPES);
+
+            if (cachedValues == null)
+            {
+                List<TypeTransactionDTO> typesTransactionsBD = (await (from MTypeTransaction types
                                                             in _contextDB.MTypeTransaction
                                                                          .AsNoTracking()
-                                                            select types)
+                                                                       select types)
                                                    .ToListAsync())
                                                    .Select(x => x.ToTypeTransactionDTO())
                                                    .ToList();
 
-            return typesTransactionsBD;
+                if(!_cache.SetValue<List<TypeTransactionDTO>>(KEY_CACHE_TRANSACTION_TYPES, typesTransactionsBD))
+                    _log.LogWarning($"{nameof(TransactionsTypes)} could not be cached!");
+
+                return typesTransactionsBD;
+            }
+            else
+            {
+                return cachedValues;
+            }
         }
 
         public async Task<List<int>> YearsAvailabes()
         {
-            List<int> yearAvailables =  (await this._contextDB.TransactionOutlay.AsNoTracking()
+            List<int> yearAvailablesCached = _cache.GetValue<List<int>>(KEY_CACHE_YEARS_AVAILABLES);
+
+            if (yearAvailablesCached == null)
+            {
+                List<int> yearAvailables = (await this._contextDB.TransactionOutlay.AsNoTracking()
                                                                         .Select(x => x.DateTransaction.ToDateTime().Year)
                                                                         .ToListAsync())
                                                                         .Distinct()
                                                                         .ToList();
+                
+                if(!_cache.SetValue<List<int>>(KEY_CACHE_YEARS_AVAILABLES, yearAvailables))
+                      _log.LogWarning($"{nameof(YearsAvailabes)} could not be cached!");
 
-            return yearAvailables;
+                return yearAvailables;
+            }
+            else
+            {
+                return yearAvailablesCached;
+            }
         }
 
         private sealed class TransactionKey

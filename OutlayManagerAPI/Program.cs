@@ -17,7 +17,7 @@ namespace OutlayManagerAPI
                 {
                     //Te permite cargar la config desde el proceso que lo ejecuta en lugar de las variables de la maquina
                     webBuilder.UseCurrentProcessEnvironment();
-                    webBuilder.UseStartup<Startup>();                   
+                    webBuilder.UseStartup<Startup>();
                 });
     }
 }

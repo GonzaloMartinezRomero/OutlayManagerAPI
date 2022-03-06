@@ -13,9 +13,9 @@ namespace OutlayManagerAPI.Services.TransactionServices
     internal class TransactionServices : ITransactionServices
     {
         private const string DATE_FORMAT = "dd/MM/yyyy";
-        private readonly IDBEntityContext _contextDB;
+        private readonly IOutlayDBContext _contextDB;
 
-        public TransactionServices(IDBEntityContext contextDB)
+        public TransactionServices(IOutlayDBContext contextDB)
         {
             this._contextDB = contextDB;
         }

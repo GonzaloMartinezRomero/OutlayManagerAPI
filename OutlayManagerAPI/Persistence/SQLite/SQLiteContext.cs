@@ -5,7 +5,7 @@ using System;
 
 namespace OutlayManagerCore.Persistence.SQLite
 {
-    public class SQLiteContext : DbContext, IDBEntityContext
+    public class SQLiteContext : DbContext, IOutlayDBContext
     {
         protected readonly string _connectionString;
 

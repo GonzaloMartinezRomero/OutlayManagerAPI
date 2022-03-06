@@ -3,7 +3,7 @@ using OutlayManagerCore.Persistence.Model;
 
 namespace OutlayManagerAPI.Persistence
 {
-    public interface IDBEntityContext 
+    public interface IOutlayDBContext 
     {
         public DbContext Context { get; }
 

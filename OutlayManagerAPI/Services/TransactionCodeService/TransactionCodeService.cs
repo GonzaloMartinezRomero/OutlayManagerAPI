@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using OutalyManager.Cache.Abstract;
 using OutlayManagerAPI.Model;
 using OutlayManagerAPI.Persistence;
 using OutlayManagerCore.Persistence.Model;
@@ -12,15 +14,23 @@ namespace OutlayManagerAPI.Services.TransactionCodeService
 {
     public class TransactionCodeService : ITransactionCodeService
     {
-        private readonly IDBEntityContext _contextDB;
+        private const string KEY_CACHE_CODES = "TransactionCodes";
 
-        public TransactionCodeService(IDBEntityContext contextDB)
+        private readonly IOutlayDBContext _contextDB;
+        private readonly IOutlayManagerCache _cache;
+        private readonly ILogger<TransactionCodeService> _log;
+
+        public TransactionCodeService(IOutlayDBContext contextDB, IOutlayManagerCache cache,ILogger<TransactionCodeService> log)
         {
             this._contextDB = contextDB;
+            this._cache = cache;
+            this._log = log;
         }
 
         public async Task<int> AddTransactionCode(CodeTransactionDTO codeTransactionDTO)
         {
+            _cache.ClearValues(KEY_CACHE_CODES);
+
             string transactionCodeFormat = codeTransactionDTO.Code.ToUpperInvariant().Trim();
 
             HashSet<string> codesAvailables = this._contextDB.MCodeTransaction.Select(x => x.Code).ToHashSet();
@@ -41,6 +51,8 @@ namespace OutlayManagerAPI.Services.TransactionCodeService
 
         public async Task<int> DeleteTransactionCode(uint id)
         {
+            _cache.ClearValues(KEY_CACHE_CODES);
+
             MCodeTransaction mCodeTransaction = this._contextDB.MCodeTransaction.Where(x => x.ID == id).SingleOrDefault();
 
             if (mCodeTransaction == null)
@@ -59,13 +71,26 @@ namespace OutlayManagerAPI.Services.TransactionCodeService
 
         public async Task<List<CodeTransactionDTO>> TransactionsCodes()
         {
-            List<CodeTransactionDTO> codesTransactionsBD = (await (from MCodeTransaction codes
+            List<CodeTransactionDTO> transactionsCodeCached = _cache.GetValue<List<CodeTransactionDTO>>(KEY_CACHE_CODES);
+
+            if (transactionsCodeCached == null)
+            {
+                List<CodeTransactionDTO> codesTransactionsBD = (await (from MCodeTransaction codes
                                                      in _contextDB.MCodeTransaction.AsNoTracking()
-                                                            select codes)
+                                                                       select codes)
                                                    .ToListAsync())
                                                    .Select(x => x.ToCodeTransactionDTO())
                                                    .ToList();
-            return codesTransactionsBD;
+
+                if (!_cache.SetValue(KEY_CACHE_CODES, codesTransactionsBD))
+                    _log.LogWarning($"{nameof(TransactionsCodes)} could not be cached!");
+                
+                return codesTransactionsBD;
+            }
+            else
+            {
+                return _cache.GetValue<List<CodeTransactionDTO>>(KEY_CACHE_CODES);
+            }
         }
     }
 }

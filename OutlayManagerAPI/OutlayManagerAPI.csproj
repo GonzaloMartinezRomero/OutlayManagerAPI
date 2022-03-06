@@ -27,4 +27,8 @@
     <Folder Include="Persistence\Model\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\OutalyManager.Cache\OutalyManager.Cache.csproj" />
+  </ItemGroup>
+
 </Project>

@@ -4,6 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using OutalyManager.Cache.Abstract;
+using OutalyManager.Cache.Service;
 using OutlayManagerAPI.Persistence;
 using OutlayManagerAPI.Services.AuthenticationServices;
 using OutlayManagerAPI.Services.TransactionCodeService;
@@ -27,11 +29,12 @@ namespace OutlayManagerAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IDBEntityContext>(impl=> 
+            services.AddTransient<IOutlayDBContext>(impl=> 
             {
                 string connectionString = Configuration.GetValue<string>(ApplicationConstants.CONNECTION_STRING_CONFIG_KEY);
                 return new SQLiteContext(connectionString);
             });
+            services.AddSingleton<IOutlayManagerCache>(x => OutlayMangerCacheImpl.GetService() );
             services.AddTransient<ITransactionServices, TransactionServices>();
             services.AddTransient<ITransactionCodeService, TransactionCodeService>();
             services.AddTransient<ITransactionInfoService, TransactionInfoService>();
