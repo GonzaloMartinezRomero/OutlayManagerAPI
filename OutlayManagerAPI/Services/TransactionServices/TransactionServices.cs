@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using OutalyManager.Cache.Abstract;
 using OutlayManagerAPI.Model;
 using OutlayManagerAPI.Persistence;
+using OutlayManagerAPI.Services.TransactionInfoServices;
 using OutlayManagerCore.Persistence.Model;
 using OutlayManagerCore.Utilities;
 using System;
@@ -13,11 +16,17 @@ namespace OutlayManagerAPI.Services.TransactionServices
     internal class TransactionServices : ITransactionServices
     {
         private const string DATE_FORMAT = "dd/MM/yyyy";
-        private readonly IOutlayDBContext _contextDB;
+        private const string KEY_CACHE_TRANSACTION_YEAR_MONTH = "TransactionYearMonth";
 
-        public TransactionServices(IOutlayDBContext contextDB)
+        private readonly IOutlayDBContext _contextDB;
+        private readonly IOutlayManagerCache _cache;
+        private readonly ILogger<TransactionInfoService> _log;
+
+        public TransactionServices(IOutlayDBContext contextDB, IOutlayManagerCache cache, ILogger<TransactionInfoService> log)
         {
             this._contextDB = contextDB;
+            this._cache = cache;
+            this._log = log;
         }
 
         public async Task<uint> SaveTransaction(TransactionDTO transaction)
@@ -43,6 +52,8 @@ namespace OutlayManagerAPI.Services.TransactionServices
             //load by ref the ID given by the DB
             transaction.ID = (uint)newTransaction.ID;
 
+            ClearCacheTransactions();
+
             return transaction.ID;
         }
 
@@ -66,6 +77,8 @@ namespace OutlayManagerAPI.Services.TransactionServices
 
             await _contextDB.Context.SaveChangesAsync();
 
+            ClearCacheTransactions();
+
             return transactionToUpdate.ToTransactionDTO();
         }
 
@@ -86,28 +99,42 @@ namespace OutlayManagerAPI.Services.TransactionServices
 
         public async Task<List<TransactionDTO>> Transactions(int year , int month)
         {
-            bool loadCompleteYear = month == 0;
+            string keyCacheYearMonth = BuildKeyCache(year, month);
 
-            List<TransactionDTO> transactionsBD = (await(from TransactionOutlay t
-                                                   in _contextDB.TransactionOutlay
-                                                               .AsNoTracking()
-                                                               .Include(x => x.TypeTransaction)
-                                                               .Include(x => x.CodeTransaction)
-                                                   select t)
-                                                   .ToListAsync())
-                                                   .Where(t =>
-                                                   {
-                                                       DateTime dateParsed = t.DateTransaction.ToDateTime();
+            List<TransactionDTO> transactionsCached = _cache.GetValue<List<TransactionDTO>>(keyCacheYearMonth);
 
-                                                       if (loadCompleteYear)
-                                                           return dateParsed.Year == year;
-                                                       else
-                                                           return dateParsed.Year == year && dateParsed.Month == month;
-                                                   })
-                                                   .Select(x => x.ToTransactionDTO())
-                                                   .ToList();
+            if(transactionsCached == null)
+            {
+                bool loadCompleteYear = month == 0;
 
-            return transactionsBD;
+                List<TransactionDTO> transactionsBD = (await (from TransactionOutlay t
+                                                        in _contextDB.TransactionOutlay
+                                                                    .AsNoTracking()
+                                                                    .Include(x => x.TypeTransaction)
+                                                                    .Include(x => x.CodeTransaction)
+                                                              select t)
+                                                       .ToListAsync())
+                                                       .Where(t =>
+                                                       {
+                                                           DateTime dateParsed = t.DateTransaction.ToDateTime();
+
+                                                           if (loadCompleteYear)
+                                                               return dateParsed.Year == year;
+                                                           else
+                                                               return dateParsed.Year == year && dateParsed.Month == month;
+                                                       })
+                                                       .Select(x => x.ToTransactionDTO())
+                                                       .ToList();
+
+                if(!_cache.SetValue(keyCacheYearMonth, transactionsBD))
+                    _log.LogWarning($"{nameof(Transactions)} could not be cached!");
+
+                return transactionsBD;
+            }
+            else
+            {
+                return transactionsCached;
+            }
         }
 
         public async Task<List<TransactionDTO>> Transactions()
@@ -136,8 +163,27 @@ namespace OutlayManagerAPI.Services.TransactionServices
 
             _contextDB.TransactionOutlay.Remove(transactionToDelete);
             await _contextDB.Context.SaveChangesAsync();
+            
+            ClearCacheTransactions();
 
             return (uint)transactionToDelete.ID;
+        }
+
+        private void ClearCacheTransactions() 
+        {
+            List<string> transactionsCached = _cache.KeyValues().Where(x => x.Contains(KEY_CACHE_TRANSACTION_YEAR_MONTH))
+                                                                       .ToList();
+
+            foreach(string transactionKeyCacheAux in transactionsCached)
+                _cache.ClearValues(transactionKeyCacheAux);
+        }
+
+        private string BuildKeyCache(int year, int month)
+        {
+            return String.Concat(new string[] { KEY_CACHE_TRANSACTION_YEAR_MONTH, 
+                                                year.ToString(), 
+                                                month.ToString() 
+            }); 
         }
     }
 }

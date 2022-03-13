@@ -40,6 +40,8 @@ namespace OutalyManager.Cache.Implementation
 
         public bool ClearValues(string valueKey) => _cache.TryRemove(valueKey,out dynamic value);
 
+        public IEnumerable<string> KeyValues() => _cache.Keys.AsEnumerable();
+
         public void ClearAll() => _cache.Clear();
     }
 }

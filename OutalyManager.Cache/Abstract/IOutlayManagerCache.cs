@@ -27,5 +27,11 @@ namespace OutalyManager.Cache.Abstract
         bool ClearValues(string valueKey);
 
         void ClearAll();
+
+        /// <summary>
+        /// Return all key values allocated in cache
+        /// </summary>
+        /// <returns></returns>
+        IEnumerable<string> KeyValues();
     }
 }
