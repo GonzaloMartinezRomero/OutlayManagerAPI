@@ -4,15 +4,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using OutalyManager.Cache.Abstract;
-using OutalyManager.Cache.Service;
-using OutlayManagerAPI.Persistence;
-using OutlayManagerAPI.Services.AuthenticationServices;
-using OutlayManagerAPI.Services.TransactionCodeService;
-using OutlayManagerAPI.Services.TransactionInfoServices;
-using OutlayManagerAPI.Services.TransactionServices;
-using OutlayManagerAPI.Utilities;
-using OutlayManagerCore.Persistence.SQLite;
+using OutlayManager.Authentication;
+using OutlayManager.Infraestructure;
 using System.Collections.Generic;
 
 namespace OutlayManagerAPI
@@ -29,17 +22,6 @@ namespace OutlayManagerAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IOutlayDBContext>(impl=> 
-            {
-                string connectionString = Configuration.GetValue<string>(ApplicationConstants.CONNECTION_STRING_CONFIG_KEY);
-                return new SQLiteContext(connectionString);
-            });
-            services.AddSingleton<IOutlayManagerCache>(x => OutlayMangerCacheImpl.GetService() );
-            services.AddTransient<ITransactionServices, TransactionServices>();
-            services.AddTransient<ITransactionCodeService, TransactionCodeService>();
-            services.AddTransient<ITransactionInfoService, TransactionInfoService>();
-            services.AddTransient<IAuthenticationService, IdentityService>();            
-
             services.AddControllers()
                     .ConfigureApiBehaviorOptions(options=> 
                     {   
@@ -54,15 +36,8 @@ namespace OutlayManagerAPI
 
             }).AddXmlDataContractSerializerFormatters();
 
-            services.AddAuthentication("Bearer")
-                    .AddJwtBearer("Bearer", opt =>
-                    {
-                        opt.Authority = "https://localhost:6001";
-                        opt.TokenValidationParameters = new TokenValidationParameters
-                        {
-                            ValidateAudience = false
-                        };
-                    });    
+            services.AddInfraestructure(Configuration);
+            services.AddAuthenticationService(Configuration);
 
             services.AddCors(options =>
             {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using OutlayManagerAPI.Model.UserAuthentication;
-using OutlayManagerAPI.Services.AuthenticationServices;
+using OutlayManagerAPI.Authentication.Abstract;
+using OutlayManagerAPI.Model.Authentication;
 using System;
 using System.Threading.Tasks;
 

@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="IdentityModel" Version="6.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="5.0.13" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="5.0.11" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -24,11 +20,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Persistence\Model\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\OutalyManager.Cache\OutalyManager.Cache.csproj" />
+    <ProjectReference Include="..\OutlayManager.Authentication\OutlayManager.Authentication.csproj" />
+    <ProjectReference Include="..\OutlayManager.Infraestructure\OutlayManager.Infraestructure.csproj" />
+    <ProjectReference Include="..\OutlayManager.Model\OutlayManager.Model.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using OutlayManagerAPI.Model;
-using OutlayManagerAPI.Services.TransactionServices;
+using OutlayManagerAPI.Infraestructure.Services.Abstract;
+using OutlayManagerAPI.Model.DTO;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
