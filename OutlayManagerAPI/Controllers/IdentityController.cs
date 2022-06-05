@@ -20,7 +20,7 @@ namespace OutlayManagerAPI.Controllers
         [Produces("application/json")]
         [ProducesResponseType(200, Type = typeof(AuthenticationCredentials))]
         [ProducesResponseType(500, Type= typeof(ProblemDetails))]
-        [ProducesResponseType(401)]
+        [ProducesResponseType(401, Type=typeof(UnauthorizedResult))]
         public async Task<IActionResult> Authenticate([FromBody]UserCredential userCredential)
         {
             try 

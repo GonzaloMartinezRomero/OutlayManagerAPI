@@ -32,6 +32,7 @@ namespace OutlayManagerAPI.Controllers
         [HttpGet("")]
         [ProducesResponseType(200,Type = typeof(List<TransactionDTO>))]
         [ProducesResponseType(400,Type=typeof(BadRequestObjectResult))]
+        [ProducesResponseType(401)]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [Produces("application/json")]
         public async Task<IActionResult> Transactions(int? year, int? month)
@@ -73,6 +74,7 @@ namespace OutlayManagerAPI.Controllers
         [ProducesResponseType(200, Type = typeof(TransactionDTO))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [ProducesResponseType(400, Type = typeof(BadRequestResult))]
+        [ProducesResponseType(401)]
         [Produces("application/json")]
         public async Task<IActionResult> Transaction([Required] uint id)
         {
@@ -95,6 +97,7 @@ namespace OutlayManagerAPI.Controllers
         [HttpPut]
         [ProducesResponseType(200, Type = typeof(TransactionDTO))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(401)]
         [Produces("application/json")]
         public async Task<IActionResult> UpdateTransaction([FromBody] TransactionDTO transaction)
         {
@@ -117,6 +120,7 @@ namespace OutlayManagerAPI.Controllers
         [HttpPost]
         [ProducesResponseType(200, Type = typeof(UInt32))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(401)]
         [Produces("application/json")]
         public async Task<IActionResult> CreateTransaction([FromBody] TransactionDTO transaction)
         {
@@ -139,6 +143,7 @@ namespace OutlayManagerAPI.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(200, Type = typeof(UInt32))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(401)]
         public async Task<IActionResult> DeleteTransaction(uint id)
         {
             try

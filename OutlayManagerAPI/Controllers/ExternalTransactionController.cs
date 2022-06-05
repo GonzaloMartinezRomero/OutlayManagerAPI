@@ -30,6 +30,7 @@ namespace OutlayManagerAPI.Controllers
         [HttpGet("Download")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<TransactionDTO>))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(401)]
         [Produces("application/json")]
         public async Task<IActionResult> DownloadExternalTransactions()
         {
@@ -40,7 +41,7 @@ namespace OutlayManagerAPI.Controllers
             }
             catch (Exception e)
             {
-                return Problem(e.Message);
+                return Problem(detail:e.Message);
             }
         }      
     }

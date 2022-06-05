@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using OutlayManager.Authentication;
 using OutlayManager.Infraestructure;
@@ -12,6 +11,9 @@ namespace OutlayManagerAPI
 {
     public class Startup
     {
+        private const string URL_CORS_HOST_KEY = "HostWeb";
+        private const string OUTLAY_MANAGER_CORS_POLICY = "OutlayManagerWebClientCors";
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -39,15 +41,13 @@ namespace OutlayManagerAPI
             services.AddInfraestructure(Configuration);
             services.AddAuthenticationService(Configuration);
 
-            services.AddCors(options =>
+            services.AddCors(corsSetting => corsSetting.AddPolicy(OUTLAY_MANAGER_CORS_POLICY, policy =>
             {
-                options.AddDefaultPolicy(policy =>
-                {
-                    policy.AllowAnyOrigin();
-                    policy.AllowAnyHeader();
-                    policy.AllowAnyMethod();                    
-                });
-            });
+                policy.WithOrigins(Configuration[URL_CORS_HOST_KEY]);
+                policy.AllowAnyHeader();
+                policy.AllowAnyMethod();
+                policy.AllowAnyOrigin();
+            }));
 
             //Swagger
             services.AddSwaggerGen(c =>
@@ -84,13 +84,11 @@ namespace OutlayManagerAPI
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {
+        {           
             app.UseRouting();
-
+            app.UseCors(OUTLAY_MANAGER_CORS_POLICY);
             app.UseAuthentication();
             app.UseAuthorization();
-
-            app.UseCors();
 
             app.UseEndpoints(endpoints =>
             {

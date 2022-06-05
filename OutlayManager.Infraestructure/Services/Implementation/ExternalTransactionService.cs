@@ -6,8 +6,6 @@ using OutlayManagerAPI.Infraestructure.Services.Abstract;
 using OutlayManagerAPI.Model.DTO;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace OutlayManager.Infraestructure.Services.Implementation
@@ -17,10 +15,12 @@ namespace OutlayManager.Infraestructure.Services.Implementation
         private const string CONNECTION_KEY = "StringConnectionServiceBus";
         private const string QUEUE_KEY = "QueueServiceBus";
         private const string MAX_MESSAGES_KEY = "MaxMessagesServiceBus";
+        private const string MESSAGE_TIMEOUT_KEY = "MessagesTimeOut";
 
         private readonly string CONNECTION_SERVICE_BUS;
         private readonly string QUEUE_NAME;
         private readonly int MAX_MESSAGES;
+        private readonly int MESSAGE_TIMEOUT;
 
         private readonly ServiceBusClient _serviceBusClient;
         private readonly ITransactionServices _transactionServices;
@@ -36,6 +36,10 @@ namespace OutlayManager.Infraestructure.Services.Implementation
             if (!Int32.TryParse(maxMessagesValue, out MAX_MESSAGES))
                 throw new Exception($"Value for{MAX_MESSAGES_KEY} must be Int32");
 
+            string messageTimeoutValue = configuration.GetSection(MESSAGE_TIMEOUT_KEY)?.Value ?? throw new Exception($"Configuration {MESSAGE_TIMEOUT_KEY} not defined!");
+            if (!Int32.TryParse(messageTimeoutValue, out MESSAGE_TIMEOUT))
+                throw new Exception($"Value for{MESSAGE_TIMEOUT} must be Int32");
+
             _serviceBusClient = new ServiceBusClient(CONNECTION_SERVICE_BUS);
             _transactionServices = transactionService ?? throw new ArgumentNullException($"{nameof(transactionService)} is null");
         }
@@ -49,7 +53,9 @@ namespace OutlayManager.Infraestructure.Services.Implementation
             {
                 receiver = _serviceBusClient.CreateReceiver(QUEUE_NAME, new ServiceBusReceiverOptions() { ReceiveMode = ServiceBusReceiveMode.PeekLock });
 
-                IReadOnlyList<ServiceBusReceivedMessage> messagesReceived = await receiver.ReceiveMessagesAsync(MAX_MESSAGES);
+                TimeSpan messagesTimeOut = new TimeSpan(0, 0, MESSAGE_TIMEOUT);
+
+                IReadOnlyList<ServiceBusReceivedMessage> messagesReceived = await receiver.ReceiveMessagesAsync(MAX_MESSAGES, messagesTimeOut);
 
                 foreach (var messageAux in messagesReceived)
                 {
