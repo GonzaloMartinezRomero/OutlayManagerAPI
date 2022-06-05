@@ -9,11 +9,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer", "IdentityS
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutalyManager.Cache", "OutalyManager.Cache\OutalyManager.Cache.csproj", "{2E9C0F6C-9053-46BD-BBE0-876FF3121E76}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlayManager.Infraestructure", "OutlayManager.Infraestructure\OutlayManager.Infraestructure.csproj", "{19B90007-311F-4DC5-8680-C7946A23D147}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutlayManager.Infraestructure", "OutlayManager.Infraestructure\OutlayManager.Infraestructure.csproj", "{19B90007-311F-4DC5-8680-C7946A23D147}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlayManager.Model", "OutlayManager.Model\OutlayManager.Model.csproj", "{F07FFA05-0FFC-4039-8C33-96D72C041A9A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutlayManager.Model", "OutlayManager.Model\OutlayManager.Model.csproj", "{F07FFA05-0FFC-4039-8C33-96D72C041A9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlayManager.Authentication", "OutlayManager.Authentication\OutlayManager.Authentication.csproj", "{46BC88FB-46F5-414C-BB7B-A030EB54A634}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutlayManager.Authentication", "OutlayManager.Authentication\OutlayManager.Authentication.csproj", "{46BC88FB-46F5-414C-BB7B-A030EB54A634}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutlayManager.ExternalService", "OutlayManager.ExternalService\OutlayManager.ExternalService.csproj", "{E916C56D-E045-4160-8828-7E2581D1BE32}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{46BC88FB-46F5-414C-BB7B-A030EB54A634}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{46BC88FB-46F5-414C-BB7B-A030EB54A634}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{46BC88FB-46F5-414C-BB7B-A030EB54A634}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E916C56D-E045-4160-8828-7E2581D1BE32}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E916C56D-E045-4160-8828-7E2581D1BE32}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E916C56D-E045-4160-8828-7E2581D1BE32}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E916C56D-E045-4160-8828-7E2581D1BE32}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

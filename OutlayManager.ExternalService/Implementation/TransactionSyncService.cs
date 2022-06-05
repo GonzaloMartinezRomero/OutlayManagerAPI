@@ -1,6 +1,6 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Configuration;
-using OutlayManager.Infraestructure.Model;
+using OutlayManager.ExternalService.Model;
 using OutlayManager.Infraestructure.Services.Abstract;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
 using OutlayManagerAPI.Model.DTO;
@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace OutlayManager.Infraestructure.Services.Implementation
 {
-    internal class ExternalTransactionService : IExternalTransactionService
+    internal class TransactionSyncService : ITransactionSync
     {
         private const string CONNECTION_KEY = "StringConnectionServiceBus";
         private const string QUEUE_KEY = "QueueServiceBus";
@@ -25,9 +25,9 @@ namespace OutlayManager.Infraestructure.Services.Implementation
         private readonly ServiceBusClient _serviceBusClient;
         private readonly ITransactionServices _transactionServices;
 
-        private ExternalTransactionService() { }
+        private TransactionSyncService() { }
 
-        public ExternalTransactionService(ITransactionServices transactionService, IConfiguration configuration)
+        public TransactionSyncService(ITransactionServices transactionService, IConfiguration configuration)
         {
             CONNECTION_SERVICE_BUS = configuration.GetSection(CONNECTION_KEY)?.Value ?? throw new Exception($"Configuration {CONNECTION_KEY} not defined!");
             QUEUE_NAME = configuration.GetSection(QUEUE_KEY)?.Value ?? throw new Exception($"Configuration {QUEUE_KEY} not defined!");
@@ -44,7 +44,7 @@ namespace OutlayManager.Infraestructure.Services.Implementation
             _transactionServices = transactionService ?? throw new ArgumentNullException($"{nameof(transactionService)} is null");
         }
 
-        public async Task<IEnumerable<TransactionDTO>> DownloadExternalTransaction()
+        public async Task<IEnumerable<TransactionDTO>> SyncExternalTransactionAsync()
         {
             ServiceBusReceiver receiver = null;
             List<TransactionDTO> transactionsSaved = new List<TransactionDTO>();
@@ -95,6 +95,11 @@ namespace OutlayManager.Infraestructure.Services.Implementation
         public void Dispose()
         {
             _serviceBusClient?.DisposeAsync();
+        }
+
+        public Task BackupDataBase()
+        {
+            throw new NotImplementedException();
         }
     }
 }

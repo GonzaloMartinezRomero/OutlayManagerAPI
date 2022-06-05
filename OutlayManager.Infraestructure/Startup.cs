@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using OutalyManager.Cache;
-using OutlayManager.Infraestructure.Services.Abstract;
-using OutlayManager.Infraestructure.Services.Implementation;
 using OutlayManager.Infraestructure.Utilities;
 using OutlayManagerAPI.Infraestructure.Persistence;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
@@ -25,8 +23,7 @@ namespace OutlayManager.Infraestructure
 
             services.AddTransient<ITransactionServices, TransactionServices>();
             services.AddTransient<ITransactionCodeService, TransactionCodeService>();
-            services.AddTransient<ITransactionInfoService, TransactionInfoService>();
-            services.AddTransient<IExternalTransactionService, ExternalTransactionService>();
+            services.AddTransient<ITransactionInfoService, TransactionInfoService>();            
 
             return services;
         }

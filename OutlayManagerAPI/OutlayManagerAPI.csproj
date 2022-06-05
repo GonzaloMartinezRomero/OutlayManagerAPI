@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\OutalyManager.Cache\OutalyManager.Cache.csproj" />
     <ProjectReference Include="..\OutlayManager.Authentication\OutlayManager.Authentication.csproj" />
+    <ProjectReference Include="..\OutlayManager.ExternalService\OutlayManager.ExternalService.csproj" />
     <ProjectReference Include="..\OutlayManager.Infraestructure\OutlayManager.Infraestructure.csproj" />
     <ProjectReference Include="..\OutlayManager.Model\OutlayManager.Model.csproj" />
   </ItemGroup>

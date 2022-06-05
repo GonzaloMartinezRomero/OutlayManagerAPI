@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace OutlayManager.Infraestructure.Model
+namespace OutlayManager.ExternalService.Model
 {
     internal sealed class TransactionMessageServiceBus
     {

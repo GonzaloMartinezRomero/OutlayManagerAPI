@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 using OutlayManager.Authentication;
+using OutlayManager.ExternalService;
 using OutlayManager.Infraestructure;
 using System.Collections.Generic;
 
@@ -40,6 +41,7 @@ namespace OutlayManagerAPI
 
             services.AddInfraestructure(Configuration);
             services.AddAuthenticationService(Configuration);
+            services.AddExternalServices();
 
             services.AddCors(corsSetting => corsSetting.AddPolicy(OUTLAY_MANAGER_CORS_POLICY, policy =>
             {
