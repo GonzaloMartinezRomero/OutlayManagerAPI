@@ -104,7 +104,8 @@ namespace OutlayManagerAPI
 
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Outlays Manager API Documentation");                
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Outlays Manager API Documentation");
+                c.RoutePrefix = string.Empty;
             });
         }
     }

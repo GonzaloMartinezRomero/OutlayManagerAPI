@@ -30,7 +30,7 @@ namespace OutlayManagerAPI.Controllers
         /// <returns>
         /// Transactions saved
         /// </returns>
-        [HttpGet("Download")]
+        [HttpGet("Synchronize")]
         [ProducesResponseType(200, Type = typeof(IEnumerable<TransactionDTO>))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [ProducesResponseType(401)]
@@ -63,6 +63,28 @@ namespace OutlayManagerAPI.Controllers
             {
                 await _transactionBackupService.BackupDataBaseAsync();
                 return Ok();
+            }
+            catch (Exception e)
+            {
+                return Problem(detail: e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Download latest backup file
+        /// </summary>        
+        [HttpGet("DownloadBackupFile")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [ProducesResponseType(401)]
+        [Produces("application/octet-stream")]
+        public async Task<IActionResult> DownloadBackupAsync()
+        {
+            try
+            {
+                byte[] fileBytes = await _transactionBackupService.DownloadBackupFileAsync();
+
+                return File(fileBytes, "application/octet-stream","TransactionsBackup");
             }
             catch (Exception e)
             {

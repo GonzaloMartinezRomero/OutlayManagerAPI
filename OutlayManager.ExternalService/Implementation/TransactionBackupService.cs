@@ -6,6 +6,7 @@ using OutlayManagerAPI.Model.DTO;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -17,7 +18,6 @@ namespace OutlayManager.ExternalService.Implementation
         private const string AZURE_BLOB_CONNECTION_STRING_KEY = "AzureBlobConnectionString";
         private const string AZURE_CONTAINER_KEY = "AzureContainerName";
 
-        private readonly string connectionStringBlobStorage;
         private readonly string azureContainerName;
         private readonly string blobBackupName;
 
@@ -25,13 +25,14 @@ namespace OutlayManager.ExternalService.Implementation
         private readonly ITransactionServices _transactionService;
 
         public TransactionBackupService(IConfiguration configuration, ITransactionServices transactionServices)
-        {
-            connectionStringBlobStorage = configuration.GetSection(AZURE_BLOB_CONNECTION_STRING_KEY)?.Value ?? throw new Exception($"Configuration {AZURE_BLOB_CONNECTION_STRING_KEY} not defined!");
+        {   
             azureContainerName = configuration.GetSection(AZURE_CONTAINER_KEY)?.Value ?? throw new Exception($"Configuration {AZURE_CONTAINER_KEY} not defined!");
             blobBackupName = configuration.GetSection(BLOB_BACKUP_NAME_KEY)?.Value ?? throw new Exception($"Configuration {BLOB_BACKUP_NAME_KEY} not defined!");
-
+            
+            string connectionStringBlobStorage = configuration.GetSection(AZURE_BLOB_CONNECTION_STRING_KEY)?.Value ?? throw new Exception($"Configuration {AZURE_BLOB_CONNECTION_STRING_KEY} not defined!");
             _blobService = new BlobServiceClient(connectionStringBlobStorage);
-            _transactionService = transactionServices ?? throw new ArgumentNullException($"{nameof(transactionServices)} is null");
+
+            _transactionService = transactionServices ?? throw new ArgumentNullException(nameof(transactionServices),"is null");
         }
 
         public async Task BackupDataBaseAsync()
@@ -54,6 +55,26 @@ namespace OutlayManager.ExternalService.Implementation
                 if(streamContent != null)
                     await streamContent.DisposeAsync();
             }
+        }
+
+        /// <inheritdoc/>
+        public async Task<byte[]> DownloadBackupFileAsync()
+        {
+            var container = _blobService.GetBlobContainerClient(azureContainerName);
+            var blobsClient = container.GetBlobClient(blobBackupName);
+
+            using Stream blobMemoryStream = new MemoryStream();
+
+            await blobsClient.DownloadToAsync(blobMemoryStream);
+
+            blobMemoryStream.Position = 0;
+            using StreamReader reader = new StreamReader(blobMemoryStream);
+
+            string blobContent = await reader.ReadToEndAsync();
+
+            byte[] fileBytes = Encoding.ASCII.GetBytes(blobContent);
+
+            return fileBytes;
         }
 
         private Stream GenerateJsonStream(IEnumerable<TransactionDTO> transactions)
