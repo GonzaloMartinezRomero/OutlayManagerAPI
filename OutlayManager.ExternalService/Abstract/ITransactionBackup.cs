@@ -9,5 +9,11 @@ namespace OutlayManager.ExternalService.Abstract
         /// </summary>
         /// <returns></returns>
         Task BackupDataBaseAsync();
+
+        /// <summary>
+        /// Download latest backup
+        /// </summary>
+        /// <returns></returns>
+        Task<byte[]> DownloadBackupFileAsync();
     }
 }
