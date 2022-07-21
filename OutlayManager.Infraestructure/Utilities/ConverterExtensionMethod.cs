@@ -1,36 +1,41 @@
 ﻿using OutlayManagerAPI.Model.DTO;
 using OutlayManagerCore.Infraestructure.Persistence.Model;
 using System;
+using System.Globalization;
 
 namespace OutlayManagerCore.Infraestructure.Utilities
 {
     internal static class ConverterExtensionMethod
     {
+        private const string DATE_FORMAT = "dd/MM/yyyy";
+        private static IFormatProvider DATE_FORMAT_PROVIDER = CultureInfo.InvariantCulture;        
+
         public static DateTime ToDateTime(this string str)
         {
-            DateTime result = default;
+            DateTime dateTimeParsed = default;
 
-            if (!String.IsNullOrEmpty(str) && !DateTime.TryParse(str, out result))
-                throw new Exception("Imposible to cast to DateTime");
+            if (!DateTime.TryParseExact(str, DATE_FORMAT, DATE_FORMAT_PROVIDER, DateTimeStyles.None, out dateTimeParsed))
+                throw new ArgumentException("Imposible to cast to DateTime", str);
 
-            return result;
+            return dateTimeParsed;
         }
 
         public static TransactionDTO ToTransactionDTO(this TransactionOutlay entityTransaction)
         {
-            return (entityTransaction == null)
-                            ? new TransactionDTO()
-                            : new TransactionDTO()
-                            {
-                                ID = (uint)entityTransaction.ID,
-                                Amount = entityTransaction.Amount,
-                                Date = entityTransaction.DateTransaction.ToDateTime(),
-                                CodeTransaction = entityTransaction.CodeTransaction?.Code,
-                                CodeTransactionID = entityTransaction.CodeTransaction_ID,
-                                TypeTransaction = entityTransaction.TypeTransaction?.Type,
-                                TypeTransactionID = entityTransaction.TypeTransaction_ID,
-                                Description = entityTransaction.Description
-                            };
+            if(entityTransaction!=null)
+                return new TransactionDTO()
+                {
+                    ID = (uint)entityTransaction.ID,
+                    Amount = entityTransaction.Amount,
+                    Date = entityTransaction.DateTransaction.ToDateTime(),
+                    CodeTransaction = entityTransaction.CodeTransaction?.Code,
+                    CodeTransactionID = entityTransaction.CodeTransaction_ID,
+                    TypeTransaction = entityTransaction.TypeTransaction?.Type,
+                    TypeTransactionID = entityTransaction.TypeTransaction_ID,
+                    Description = entityTransaction.Description
+                };
+
+            return null;
         }
 
         public static CodeTransactionDTO ToCodeTransactionDTO(this MCodeTransaction entityCodeTransaction)

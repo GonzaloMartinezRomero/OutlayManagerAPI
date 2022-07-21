@@ -15,8 +15,10 @@ namespace OutlayManagerAPI
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    //Te permite cargar la config desde el proceso que lo ejecuta en lugar de las variables de la maquina
-                    webBuilder.UseCurrentProcessEnvironment();
+                    //webBuilder.UseCurrentProcessEnvironment();
+
+                    //Default port
+                    webBuilder.UseUrls("http://*:5024");
                     webBuilder.UseStartup<Startup>();
                 });
     }

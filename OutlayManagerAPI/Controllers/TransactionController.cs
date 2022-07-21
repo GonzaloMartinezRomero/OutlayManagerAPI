@@ -143,7 +143,8 @@ namespace OutlayManagerAPI.Controllers
         [HttpDelete("{id}")]
         [ProducesResponseType(200, Type = typeof(UInt32))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
-        [ProducesResponseType(401)]
+        [ProducesResponseType(401)]        
+        [Produces("application/json")]
         public async Task<IActionResult> DeleteTransaction(uint id)
         {
             try
@@ -151,7 +152,6 @@ namespace OutlayManagerAPI.Controllers
                 uint deletedID = await this._transactionService.DeleteTransaction(id);
 
                 return Ok(deletedID);
-
             }
             catch (Exception e)
             {

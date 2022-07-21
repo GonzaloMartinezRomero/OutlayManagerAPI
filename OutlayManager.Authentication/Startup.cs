@@ -23,6 +23,7 @@ namespace OutlayManager.Authentication
                      {
                          ValidateAudience = false
                      };
+                     opt.RequireHttpsMetadata = false;//Allow use http instead of https
                  });
 
             service.AddTransient<IAuthenticationService, IdentityService>();

@@ -5,7 +5,7 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },
-      "applicationUrl": "https://localhost:6001"
+      "applicationUrl": "http://localhost:6001"
     },
     "Production": {
       "commandName": "Project",
@@ -13,6 +13,12 @@
         "ASPNETCORE_ENVIRONMENT": "Production"
       },
       "applicationUrl": "https://localhost:6001"
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}",
+      "publishAllPorts": true,
+      "useSSL": true
     }
   }
 }

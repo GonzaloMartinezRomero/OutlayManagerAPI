@@ -38,7 +38,7 @@ namespace IdentityServer
                 CreateHostBuilder(args)
                     .ConfigureWebHostDefaults(config=> 
                     {
-                        config.UseUrls(new string[] { "https://localhost:6001" });
+                        config.UseUrls(new string[] { "http://*:6001" });
                     })
                     .Build()
                     .Run();

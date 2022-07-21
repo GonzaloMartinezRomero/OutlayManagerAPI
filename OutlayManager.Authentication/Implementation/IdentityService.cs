@@ -26,10 +26,15 @@ namespace OutlayManagerAPI.Authentication.Implementation
 
             HttpClient httpClient = new HttpClient();
 
-            DiscoveryDocumentResponse idServerDocument = await httpClient.GetDiscoveryDocumentAsync(identityServerURL);
+            DiscoveryDocumentResponse idServerDocument = await httpClient.GetDiscoveryDocumentAsync(new DiscoveryDocumentRequest() 
+            { 
+                Address= identityServerURL,
+                Policy = new DiscoveryPolicy() { RequireHttps = false}
+            });
 
             if (idServerDocument.IsError)
                 throw new Exception(idServerDocument.Error);
+
 
             TokenResponse tokenResponse = await httpClient.RequestClientCredentialsTokenAsync(new ClientCredentialsTokenRequest()
             {
