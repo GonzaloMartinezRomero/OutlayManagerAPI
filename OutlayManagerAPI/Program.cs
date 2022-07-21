@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
-using OutlayManagerAPI.AppConfiguration;
 
 namespace OutlayManagerAPI
 {
@@ -14,10 +13,7 @@ namespace OutlayManagerAPI
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    //webBuilder.UseCurrentProcessEnvironment();
-
-                    //Default port
+                {   
                     webBuilder.UseUrls("http://*:5024");
                     webBuilder.UseStartup<Startup>();
                 });

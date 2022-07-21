@@ -6,16 +6,29 @@ using System.Threading.Tasks;
 
 namespace OutlayManagerAPI.Controllers
 {
+    /// <summary>
+    /// Identity controller
+    /// </summary>
     [Route("Identity")]    
     public class IdentityController : ControllerBase
     {
         private readonly IAuthenticationService _authenticationService;
 
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="authenticationService"></param>
+        /// <param name="logger"></param>
         public IdentityController(IAuthenticationService authenticationService)
         {
             this._authenticationService = authenticationService;
         }
                 
+        /// <summary>
+        /// Authentication
+        /// </summary>
+        /// <param name="userCredential"></param>
+        /// <returns></returns>
         [HttpPost("Authenticate")]        
         [Produces("application/json")]
         [ProducesResponseType(200, Type = typeof(AuthenticationCredentials))]

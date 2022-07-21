@@ -6,7 +6,10 @@ using Microsoft.OpenApi.Models;
 using OutlayManager.Authentication;
 using OutlayManager.ExternalService;
 using OutlayManager.Infraestructure;
+using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
 namespace OutlayManagerAPI
 {
@@ -31,14 +34,6 @@ namespace OutlayManagerAPI
                         options.ClientErrorMapping[404].Link = "https://httpstatuses.com/404";
                     });
 
-            services.AddControllers(config =>
-            {
-                //Devuelve un "Not Acceptable" si el dato devuelto no tiene el parseador adecuado
-                //Por defecto se tiene json, pero en este caso se le ha agregado xml, cualquier otro lanza un 406(NotAcceptabler)
-                config.ReturnHttpNotAcceptable = true;
-
-            }).AddXmlDataContractSerializerFormatters();
-
             services.AddInfraestructure(Configuration);
             services.AddAuthenticationService(Configuration);
             services.AddExternalServices();
@@ -51,7 +46,6 @@ namespace OutlayManagerAPI
                 policy.AllowAnyOrigin();
             }));
 
-            //Swagger
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Outlay API Documentation", Version = "v1" });
@@ -81,12 +75,17 @@ namespace OutlayManagerAPI
                         new List<string>()
                     }
                 });
+
+                // Set the comments path for the Swagger JSON and UI.
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                c.IncludeXmlComments(xmlPath);
             });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
-        {           
+        {   
             app.UseRouting();
             app.UseCors(OUTLAY_MANAGER_CORS_POLICY);
             app.UseAuthentication();

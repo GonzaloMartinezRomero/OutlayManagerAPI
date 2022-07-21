@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
 using OutlayManagerAPI.Model.DTO;
 using System;
@@ -10,15 +11,25 @@ using System.Threading.Tasks;
 
 namespace OutlayManagerAPI.Controllers
 {
+    /// <summary>
+    /// Transaction info 
+    /// </summary>
     [ApiController]
     [Route("TransactionInfo")]
     public class TransactionInfoController : Controller
     {
         private readonly ITransactionInfoService _transactionInfoService;
+        private readonly ILogger _logger;
 
-        public TransactionInfoController(ITransactionInfoService transactionInfoService)
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="transactionInfoService"></param>
+        public TransactionInfoController(ILogger<TransactionInfoController> logger,ITransactionInfoService transactionInfoService)
         {
-            this._transactionInfoService = transactionInfoService;            
+            this._transactionInfoService = transactionInfoService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -33,11 +44,14 @@ namespace OutlayManagerAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("Get transactions types");
+
                 List<TypeTransactionDTO> transactionsTypes = await this._transactionInfoService.TransactionsTypes();
                 return Ok(transactionsTypes);
             }
             catch (Exception e)
             {
+                _logger.LogError("Error on get transactions types {e}", e);
                 return Problem(e.Message);
             }
         }
@@ -54,11 +68,14 @@ namespace OutlayManagerAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("Get years availables");
+
                 List<int> yearsAvailabes = await this._transactionInfoService.YearsAvailabes();
                 return Ok(yearsAvailabes);
             }
             catch (Exception e)
             {
+                _logger.LogError("Error on get years availables {e}", e);
                 return Problem(e.Message);
             }
         }
@@ -76,11 +93,14 @@ namespace OutlayManagerAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("Get amount resumes");
+
                 List<AmountResume> amountResumes = await _transactionInfoService.AmountResumes();
                 return Ok(amountResumes);
             }
             catch(Exception e)
             {
+                _logger.LogError("Error on get amount resumes {e}", e);
                 return Problem(e.Message);
             }
         }

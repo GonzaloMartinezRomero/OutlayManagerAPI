@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
 using OutlayManagerAPI.Model.DTO;
 using System;
@@ -8,15 +9,24 @@ using System.Threading.Tasks;
 
 namespace OutlayManagerAPI.Controllers
 {
+    /// <summary>
+    /// Transaction code controller
+    /// </summary>
     [ApiController]
     [Route("TransactionCodes")]
     public class TransactionCodeController : Controller
     {
         private readonly ITransactionCodeService _transactionCodeService;
+        private readonly ILogger _logger;
 
-        public TransactionCodeController(ITransactionCodeService transactionCodeService)
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="transactionCodeService"></param>
+        public TransactionCodeController(ITransactionCodeService transactionCodeService, ILogger<TransactionCodeController> logger)
         {
             this._transactionCodeService = transactionCodeService;
+            _logger = logger;
         }
 
         /// <summary>
@@ -32,11 +42,14 @@ namespace OutlayManagerAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("Create transactions codes {codeTransactionDTO}", codeTransactionDTO);
+
                 int id = await this._transactionCodeService.AddTransactionCode(codeTransactionDTO);
                 return Ok(id);
             }
             catch (Exception e)
             {
+                _logger.LogError("Error on create transactions codes {e}", e);
                 return Problem(e.Message);
             }
         }
@@ -44,7 +57,7 @@ namespace OutlayManagerAPI.Controllers
         /// <summary>
         /// Delete transaction code
         /// </summary>
-        /// <param name="Id"></param>
+        /// <param name="id"></param>
         /// <returns></returns>
         [HttpDelete("{id}")]
         [ProducesResponseType(200, Type = typeof(Int32))]
@@ -55,11 +68,15 @@ namespace OutlayManagerAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("Delete transactions codes {id}", id);
+
                 int idDeleted = await this._transactionCodeService.DeleteTransactionCode(id);
                 return Ok(idDeleted);
             }
             catch (Exception e)
             {
+                _logger.LogError("Error on delete transaction code {e}", e);
+
                 return Problem(e.Message);
             }
         }
@@ -76,11 +93,14 @@ namespace OutlayManagerAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("Get transactions codes");
+
                 List<CodeTransactionDTO> codeTransactionsList = await this._transactionCodeService.TransactionsCodes();
                 return Ok(codeTransactionsList);
             }
             catch (Exception e)
             {
+                _logger.LogError("Error on get transactions codes {e}", e);
                 return Problem(e.Message);
             }
         }

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using OutlayManager.ExternalService.Abstract;
 using OutlayManager.Infraestructure.Services.Abstract;
 using OutlayManagerAPI.Model.DTO;
@@ -9,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace OutlayManagerAPI.Controllers
 {
+    /// <summary>
+    /// External operations
+    /// </summary>
     [ApiController]
     [Route("ExternalOperation")]
     [Authorize]
@@ -16,17 +20,24 @@ namespace OutlayManagerAPI.Controllers
     {
         private readonly ITransactionSync _transactionSynchronizationService;
         private readonly ITransactionBackup _transactionBackupService;
+        private readonly ILogger _logger;
 
-        public ExternalOperationsController(ITransactionSync transactionSyncService,ITransactionBackup transactionBackupService)
+        /// <summary>
+        /// Ctor
+        /// </summary>
+        /// <param name="transactionSyncService"></param>
+        /// <param name="transactionBackupService"></param>
+        /// <param name="logger"></param>
+        public ExternalOperationsController(ILogger<ExternalOperationsController> logger,ITransactionSync transactionSyncService,ITransactionBackup transactionBackupService)
         {
             _transactionSynchronizationService = transactionSyncService;
             _transactionBackupService = transactionBackupService;
+            _logger = logger;
         }
 
         /// <summary>
-        /// Download external transaction
-        /// </summary>
-        /// <param name="codeTransactionDTO"></param>
+        /// Synchronize external transaction
+        /// </summary>        
         /// <returns>
         /// Transactions saved
         /// </returns>
@@ -39,11 +50,14 @@ namespace OutlayManagerAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("Synchronizing transactions from azure");
+
                 IEnumerable<TransactionDTO> externalTransactionSaved = await _transactionSynchronizationService.SyncExternalTransactionAsync();
                 return Ok(externalTransactionSaved);
             }
             catch (Exception e)
             {
+                _logger.LogError("Error on sync transactions {e}", e);
                 return Problem(detail:e.Message);
             }
         }
@@ -61,11 +75,15 @@ namespace OutlayManagerAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("Backup transactions from azure");
+
                 await _transactionBackupService.BackupDataBaseAsync();
                 return Ok();
             }
             catch (Exception e)
             {
+                _logger.LogError("Error on backup transactions {e}", e);
+
                 return Problem(detail: e.Message);
             }
         }
@@ -82,12 +100,16 @@ namespace OutlayManagerAPI.Controllers
         {
             try
             {
+                _logger.LogInformation("Download transactions from azure");
+
                 byte[] fileBytes = await _transactionBackupService.DownloadBackupFileAsync();
 
                 return File(fileBytes, "application/octet-stream","TransactionsBackup");
             }
             catch (Exception e)
             {
+                _logger.LogError("Error on download backup transactions {e}", e);
+
                 return Problem(detail: e.Message);
             }
         }
