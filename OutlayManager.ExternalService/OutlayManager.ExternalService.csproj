@@ -6,7 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.7.0" />
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.12.0" />
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.13.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="5.0.0" />
   </ItemGroup>
 
