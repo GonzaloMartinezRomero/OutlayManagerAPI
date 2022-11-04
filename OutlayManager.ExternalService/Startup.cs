@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using OutlayManager.ExternalService.Backup.Abstract;
-using OutlayManager.ExternalService.Backup.Implementation;
+using OutlayManager.ExternalService.BackupDataBaseService.Abstract;
+using OutlayManager.ExternalService.BackupDataBaseService.Implementation;
 using OutlayManager.ExternalService.TransactionBus.Abstract;
 using OutlayManager.ExternalService.TransactionBus.Implementation;
 

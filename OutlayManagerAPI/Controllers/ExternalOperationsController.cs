@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OutlayManager.ExternalService.Backup.Abstract;
+using OutlayManager.ExternalService.BackupDataBaseService.Abstract;
 using OutlayManager.ExternalService.TransactionBus.Abstract;
 using OutlayManagerAPI.Model.DTO;
 using System;
