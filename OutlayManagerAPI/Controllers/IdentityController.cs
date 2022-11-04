@@ -18,7 +18,6 @@ namespace OutlayManagerAPI.Controllers
         /// Ctor
         /// </summary>
         /// <param name="authenticationService"></param>
-        /// <param name="logger"></param>
         public IdentityController(IAuthenticationService authenticationService)
         {
             this._authenticationService = authenticationService;

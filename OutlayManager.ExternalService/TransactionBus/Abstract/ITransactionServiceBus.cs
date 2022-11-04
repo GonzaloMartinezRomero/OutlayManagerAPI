@@ -3,11 +3,11 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace OutlayManager.Infraestructure.Services.Abstract
+namespace OutlayManager.ExternalService.TransactionBus.Abstract
 {
-    public interface ITransactionSync : IDisposable
+    public interface ITransactionServiceBus
     {
         Task<IEnumerable<TransactionDTO>> SyncExternalTransactionAsync();
-        
+
     }
 }

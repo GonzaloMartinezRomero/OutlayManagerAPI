@@ -1,10 +1,8 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using OutlayManager.ExternalService.Abstract;
-using OutlayManager.ExternalService.Implementation;
-using OutlayManager.Infraestructure.Services.Abstract;
-using OutlayManager.Infraestructure.Services.Implementation;
-using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+using OutlayManager.ExternalService.Backup.Abstract;
+using OutlayManager.ExternalService.Backup.Implementation;
+using OutlayManager.ExternalService.TransactionBus.Abstract;
+using OutlayManager.ExternalService.TransactionBus.Implementation;
 
 namespace OutlayManager.ExternalService
 {
@@ -12,7 +10,7 @@ namespace OutlayManager.ExternalService
     {
         public static IServiceCollection AddExternalServices(this IServiceCollection services)
         {
-            services.AddTransient<ITransactionSync, TransactionSyncService>();
+            services.AddTransient<ITransactionServiceBus, AzureServiceBus>();
             services.AddTransient<ITransactionBackup, TransactionBackupService>();
 
             return services;

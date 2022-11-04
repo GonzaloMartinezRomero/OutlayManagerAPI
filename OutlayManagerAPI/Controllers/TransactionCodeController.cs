@@ -23,6 +23,7 @@ namespace OutlayManagerAPI.Controllers
         /// Ctor
         /// </summary>
         /// <param name="transactionCodeService"></param>
+        /// <param name="logger"></param>
         public TransactionCodeController(ITransactionCodeService transactionCodeService, ILogger<TransactionCodeController> logger)
         {
             this._transactionCodeService = transactionCodeService;

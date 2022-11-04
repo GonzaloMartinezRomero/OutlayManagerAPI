@@ -8,6 +8,7 @@
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
 	<GenerateDocumentationFile>true</GenerateDocumentationFile>
+	<StartupObject>OutlayManagerAPI.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>

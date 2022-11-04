@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using OutlayManager.ExternalService.Abstract;
-using OutlayManager.Infraestructure.Services.Abstract;
+using OutlayManager.ExternalService.Backup.Abstract;
+using OutlayManager.ExternalService.TransactionBus.Abstract;
 using OutlayManagerAPI.Model.DTO;
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ namespace OutlayManagerAPI.Controllers
     [Authorize]
     public class ExternalOperationsController : Controller
     {
-        private readonly ITransactionSync _transactionSynchronizationService;
+        private readonly ITransactionServiceBus _transactionSynchronizationService;
         private readonly ITransactionBackup _transactionBackupService;
         private readonly ILogger _logger;
 
@@ -28,7 +28,7 @@ namespace OutlayManagerAPI.Controllers
         /// <param name="transactionSyncService"></param>
         /// <param name="transactionBackupService"></param>
         /// <param name="logger"></param>
-        public ExternalOperationsController(ILogger<ExternalOperationsController> logger,ITransactionSync transactionSyncService,ITransactionBackup transactionBackupService)
+        public ExternalOperationsController(ILogger<ExternalOperationsController> logger,ITransactionServiceBus transactionSyncService,ITransactionBackup transactionBackupService)
         {
             _transactionSynchronizationService = transactionSyncService;
             _transactionBackupService = transactionBackupService;
@@ -77,7 +77,7 @@ namespace OutlayManagerAPI.Controllers
             {
                 _logger.LogInformation("Backup transactions from azure");
 
-                await _transactionBackupService.BackupDataBaseAsync();
+                await _transactionBackupService.BackupTransactionsAsync();
                 return Ok();
             }
             catch (Exception e)
