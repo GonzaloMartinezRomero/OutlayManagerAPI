@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace OutlayManager.ExternalService.Model
+namespace OutlayManager.Model.DTO
 {
-    internal sealed class TransactionMessageServiceBus
+    public sealed class TransactionQueued
     {
         public Guid Id { get; set; } = Guid.Empty;
         public DateTime Date { get; set; }
