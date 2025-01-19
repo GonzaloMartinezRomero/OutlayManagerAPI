@@ -12,8 +12,7 @@ namespace OutlayManagerAPI.Controllers
     /// PendingTransaction
     /// </summary>
     [ApiController]
-    [Route("PendingTransaction")]
-    [Authorize]
+    [Route("PendingTransaction")]   
     public class PendingTransactionController : Controller
     {
         private readonly ITransactionPending _pendingTransactionService;        

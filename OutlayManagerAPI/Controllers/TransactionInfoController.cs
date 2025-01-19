@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using OutlayManager.Model.DTO;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
 using OutlayManagerAPI.Model.DTO;
 using System;
@@ -46,7 +46,7 @@ namespace OutlayManagerAPI.Controllers
             {
                 _logger.LogInformation("Get transactions types");
 
-                List<TypeTransactionDTO> transactionsTypes = await this._transactionInfoService.TransactionsTypes();
+                List<TypeTransactionDTO> transactionsTypes = await this._transactionInfoService.GetTransactionsTypesAsync();
                 return Ok(transactionsTypes);
             }
             catch (Exception e)
@@ -87,8 +87,7 @@ namespace OutlayManagerAPI.Controllers
         [HttpGet("AmountResumes")]
         [ProducesResponseType(200, Type = typeof(List<AmountResume>))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
-        [Produces("application/json")]
-        [Authorize]
+        [Produces("application/json")]      
         public async Task<IActionResult> AmountResumes()
         {
             try
@@ -100,7 +99,32 @@ namespace OutlayManagerAPI.Controllers
             }
             catch(Exception e)
             {
-                _logger.LogError("Error on get amount resumes {e}", e);
+                _logger.LogError($"Error on get amount resumes {e}");
+                return Problem(e.Message);
+            }
+        }
+
+
+        /// <summary>
+        /// Savingses the per year asynchronous.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("SavingsPerYear")]
+        [ProducesResponseType(200, Type = typeof(List<SavingPerYearDto>))]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [Produces("application/json")]
+        public async Task<IActionResult> SavingsPerYearAsync()
+        {
+            try
+            {
+                _logger.LogInformation("Get savings per year");
+
+                List<SavingPerYearDto> savingPerYearResult = await _transactionInfoService.SavingsPerYearAsync();
+                return Ok(savingPerYearResult);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error on get savings per year {e.Message}");
                 return Problem(e.Message);
             }
         }

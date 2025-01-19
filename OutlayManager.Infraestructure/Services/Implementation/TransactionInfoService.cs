@@ -1,11 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using OutalyManager.Cache.Abstract;
+using OutlayManager.Model.DTO;
+using OutlayManagerAPI.Infraestructure.Cache.Abstract;
 using OutlayManagerAPI.Infraestructure.Persistence;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
 using OutlayManagerAPI.Model.DTO;
 using OutlayManagerCore.Infraestructure.Persistence.Model;
 using OutlayManagerCore.Infraestructure.Utilities;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -76,7 +78,38 @@ namespace OutlayManagerAPI.Infraestructure.Services.Implementation
             return amountResumes;
         }
 
-        public async Task<List<TypeTransactionDTO>> TransactionsTypes()
+        public async Task<List<SavingPerYearDto>> SavingsPerYearAsync()
+        {
+            List<TransactionOutlay> transactions = await this._contextDB.TransactionOutlay.AsNoTracking()
+                                                                                          .ToListAsync();
+
+            var transactionTypes = await GetTransactionsTypesAsync();
+
+            int transactionIncomingId = transactionTypes.Where(x => x.Type.ToUpperInvariant() == "INCOMING").Select(x => x.ID).First();
+            int transactionExpensesId = transactionTypes.Where(x => x.Type.ToUpperInvariant() == "SPENDING").Select(x => x.ID).First();
+
+            List<SavingPerYearDto> savingsPerYear = transactions.GroupBy(x => x.DateTransaction.ToDateTime().Year)
+                                                                .Select(x =>
+                                                                {
+                                                                    double expenses = x.Where(x => x.TypeTransaction_ID == transactionExpensesId)
+                                                                                       .Sum(x => x.Amount);
+
+                                                                    double incomings = x.Where(x => x.TypeTransaction_ID == transactionIncomingId)
+                                                                                        .Sum(x => x.Amount);
+
+                                                                    return new SavingPerYearDto()
+                                                                    {
+                                                                        Year = x.Key,
+                                                                        Savings = Math.Round(incomings - expenses, 2)
+                                                                    };
+                                                                })
+                                                                .OrderBy(x => x.Year)
+                                                                .ToList();
+
+                return savingsPerYear;
+        }
+
+        public async Task<List<TypeTransactionDTO>> GetTransactionsTypesAsync()
         {
             List<TypeTransactionDTO> cachedValues = _cache.GetValue<List<TypeTransactionDTO>>(KEY_CACHE_TRANSACTION_TYPES);
 
@@ -91,7 +124,7 @@ namespace OutlayManagerAPI.Infraestructure.Services.Implementation
                                                    .ToList();
 
                 if(!_cache.SetValue<List<TypeTransactionDTO>>(KEY_CACHE_TRANSACTION_TYPES, typesTransactionsBD))
-                    _log.LogWarning($"{nameof(TransactionsTypes)} could not be cached!");
+                    _log.LogWarning($"{nameof(GetTransactionsTypesAsync)} could not be cached!");
 
                 return typesTransactionsBD;
             }
@@ -127,6 +160,7 @@ namespace OutlayManagerAPI.Infraestructure.Services.Implementation
         private sealed class TransactionKey
         {
             public int Year { get; set; }
+
             public int Month { get; set; }
 
             private TransactionKey() { }

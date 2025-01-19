@@ -2,6 +2,6 @@
 {
     internal static class AppSettingConstants
     {
-        public static string CONNECTION_STRING ="PathBDConnection";
+        public static string CONNECTION_STRING = "SqliteDbFile";
     }
 }

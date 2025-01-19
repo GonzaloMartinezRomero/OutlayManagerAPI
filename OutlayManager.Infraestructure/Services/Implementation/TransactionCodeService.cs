@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using OutalyManager.Cache.Abstract;
+using OutlayManagerAPI.Infraestructure.Cache.Abstract;
 using OutlayManagerAPI.Infraestructure.Persistence;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
 using OutlayManagerAPI.Model.DTO;

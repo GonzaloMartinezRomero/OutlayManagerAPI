@@ -1,4 +1,5 @@
-﻿using OutlayManagerAPI.Model.DTO;
+﻿using OutlayManager.Model.DTO;
+using OutlayManagerAPI.Model.DTO;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -6,8 +7,12 @@ namespace OutlayManagerAPI.Infraestructure.Services.Abstract
 {
     public interface ITransactionInfoService
     {  
-        Task<List<TypeTransactionDTO>> TransactionsTypes();
-        Task<List<int>> YearsAvailabes();
-        Task<List<AmountResume>> AmountResumes();
+        public Task<List<TypeTransactionDTO>> GetTransactionsTypesAsync();
+
+        public Task<List<int>> YearsAvailabes();
+
+        public Task<List<AmountResume>> AmountResumes();
+
+        public Task<List<SavingPerYearDto>> SavingsPerYearAsync();
     }
 }

@@ -5,15 +5,9 @@ VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutlayManagerAPI", "OutlayManagerAPI\OutlayManagerAPI.csproj", "{108DD03B-DB1B-4F5D-8521-4FA756ECE571}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityServer", "IdentityServer\IdentityServer.csproj", "{2278C56D-0848-4554-BE75-C7024D03D4F0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutalyManager.Cache", "OutalyManager.Cache\OutalyManager.Cache.csproj", "{2E9C0F6C-9053-46BD-BBE0-876FF3121E76}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutlayManager.Infraestructure", "OutlayManager.Infraestructure\OutlayManager.Infraestructure.csproj", "{19B90007-311F-4DC5-8680-C7946A23D147}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutlayManager.Model", "OutlayManager.Model\OutlayManager.Model.csproj", "{F07FFA05-0FFC-4039-8C33-96D72C041A9A}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutlayManager.Authentication", "OutlayManager.Authentication\OutlayManager.Authentication.csproj", "{46BC88FB-46F5-414C-BB7B-A030EB54A634}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -25,14 +19,6 @@ Global
 		{108DD03B-DB1B-4F5D-8521-4FA756ECE571}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{108DD03B-DB1B-4F5D-8521-4FA756ECE571}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{108DD03B-DB1B-4F5D-8521-4FA756ECE571}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2278C56D-0848-4554-BE75-C7024D03D4F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2278C56D-0848-4554-BE75-C7024D03D4F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2278C56D-0848-4554-BE75-C7024D03D4F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2278C56D-0848-4554-BE75-C7024D03D4F0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{2E9C0F6C-9053-46BD-BBE0-876FF3121E76}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2E9C0F6C-9053-46BD-BBE0-876FF3121E76}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2E9C0F6C-9053-46BD-BBE0-876FF3121E76}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2E9C0F6C-9053-46BD-BBE0-876FF3121E76}.Release|Any CPU.Build.0 = Release|Any CPU
 		{19B90007-311F-4DC5-8680-C7946A23D147}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{19B90007-311F-4DC5-8680-C7946A23D147}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{19B90007-311F-4DC5-8680-C7946A23D147}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -41,10 +27,6 @@ Global
 		{F07FFA05-0FFC-4039-8C33-96D72C041A9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F07FFA05-0FFC-4039-8C33-96D72C041A9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F07FFA05-0FFC-4039-8C33-96D72C041A9A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{46BC88FB-46F5-414C-BB7B-A030EB54A634}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{46BC88FB-46F5-414C-BB7B-A030EB54A634}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{46BC88FB-46F5-414C-BB7B-A030EB54A634}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{46BC88FB-46F5-414C-BB7B-A030EB54A634}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

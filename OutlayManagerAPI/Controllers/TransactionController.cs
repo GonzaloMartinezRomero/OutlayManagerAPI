@@ -16,8 +16,7 @@ namespace OutlayManagerAPI.Controllers
     /// Transaction Controller
     /// </summary>
     [ApiController]    
-    [Route("Transactions")]
-    [Authorize]
+    [Route("Transactions")]   
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionServices _transactionService;

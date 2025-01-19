@@ -3,10 +3,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
-using OutlayManager.Authentication;
 using OutlayManager.Infraestructure;
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 
@@ -48,8 +46,7 @@ namespace OutlayManagerAPI
                     });
 
             services.AddInfraestructure(Configuration);
-            services.AddAuthenticationService(Configuration);            
-
+          
             services.AddCors(corsSetting => corsSetting.AddPolicy(OUTLAY_MANAGER_CORS_POLICY, policy =>
             {
                 policy.WithOrigins(Configuration[URL_CORS_HOST_KEY]);
@@ -61,33 +58,6 @@ namespace OutlayManagerAPI
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "Outlay API Documentation", Version = "v1" });
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-                {
-                    Name = "Authorization",
-                    Type = SecuritySchemeType.ApiKey,
-                    Scheme = "Bearer",
-                    In = ParameterLocation.Header,
-                    Description = "JWT Authorization scheme"
-                });
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
-                {
-                    {
-                        new OpenApiSecurityScheme
-                        {
-                            Reference = new OpenApiReference
-                                {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
-                                },
-                                Scheme = "oauth2",
-                                Name = "Bearer",
-                                In = ParameterLocation.Header,
-
-                        },
-                        new List<string>()
-                    }
-                });
-
                 // Set the comments path for the Swagger JSON and UI.
                 var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
@@ -105,8 +75,6 @@ namespace OutlayManagerAPI
         {   
             app.UseRouting();
             app.UseCors(OUTLAY_MANAGER_CORS_POLICY);
-            app.UseAuthentication();
-            app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
             {

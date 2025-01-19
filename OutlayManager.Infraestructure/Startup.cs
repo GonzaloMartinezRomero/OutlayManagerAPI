@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using OutalyManager.Cache;
 using OutlayManager.Infraestructure.Services.Abstract;
 using OutlayManager.Infraestructure.Services.Implementation;
 using OutlayManager.Infraestructure.Utilities;
+using OutlayManagerAPI.Infraestructure.Cache.Abstract;
 using OutlayManagerAPI.Infraestructure.Persistence;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
 using OutlayManagerAPI.Infraestructure.Services.Implementation;
@@ -15,7 +15,7 @@ namespace OutlayManager.Infraestructure
     {
         public static IServiceCollection AddInfraestructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddOutlayMemoryCache();
+            services.AddSingleton<IOutlayManagerCache,OutlayManagerCacheService>(); 
 
             services.AddTransient<IOutlayDBContext>(impl =>
             {
