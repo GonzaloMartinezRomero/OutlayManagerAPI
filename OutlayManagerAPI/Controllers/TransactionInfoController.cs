@@ -128,5 +128,30 @@ namespace OutlayManagerAPI.Controllers
                 return Problem(e.Message);
             }
         }
+
+        /// <summary>
+        /// Resumes the by transaction type per year.
+        /// </summary>
+        /// <param name="year">The year.</param>
+        /// <returns></returns>
+        [HttpGet("TransactionResume")]
+        [ProducesResponseType(200, Type = typeof(List<TransactionResume>))]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [Produces("application/json")]
+        public async Task<IActionResult> ResumeByTransactionTypePerYear(int year)
+        {
+            try
+            {
+                _logger.LogInformation("Get ResumeByTransactionTypePerYear per year");
+
+                List<TransactionResume> amountPerTransactionResult = await _transactionInfoService.ResumeByTransactionAsync(year);
+                return Ok(amountPerTransactionResult);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error on get savings per year {e.Message}");
+                return Problem(e.Message);
+            }
+        }
     }
 }

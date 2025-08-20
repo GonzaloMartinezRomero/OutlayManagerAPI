@@ -157,6 +157,27 @@ namespace OutlayManagerAPI.Infraestructure.Services.Implementation
             }
         }
 
+        public async Task<List<TransactionResume>> ResumeByTransactionAsync(int year)
+        {
+            List<TransactionOutlay> transactions = await _contextDB.TransactionOutlay.Include(x => x.TypeTransaction)
+                                                                                     .Include(x=>x.CodeTransaction)
+                                                                                     .AsNoTracking()
+                                                                                     .ToListAsync();
+
+            List<TransactionResume> transactionDTOs = transactions.Select(x => x.ToTransactionDTO())
+                                                               .Where(x => x.Date.Year == year)
+                                                                .GroupBy(x => x.CodeTransaction)
+                                                                .Select(x => new TransactionResume()
+                                                                {
+                                                                    Code = x.Key,
+                                                                    Expenses = x.Where(x => x.TypeTransaction == "SPENDING").Sum(x => x.Amount),
+                                                                    Incoming = x.Where(x => x.TypeTransaction == "INCOMING").Sum(x => x.Amount),
+                                                                })
+                                                               .ToList();
+
+            return transactionDTOs;
+        }
+
         private sealed class TransactionKey
         {
             public int Year { get; set; }
