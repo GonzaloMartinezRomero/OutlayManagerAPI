@@ -153,5 +153,30 @@ namespace OutlayManagerAPI.Controllers
                 return Problem(e.Message);
             }
         }
+
+        /// <summary>
+        /// Investeds the report asynchronous.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("InvestReport")]
+        [ProducesResponseType(200, Type = typeof(InvestReport))]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [Produces("application/json")]
+        public async Task<IActionResult> InvestedReportAsync()
+        {
+            try
+            {
+                _logger.LogInformation($"Get ${nameof(InvestedReportAsync)}");
+
+                InvestReport investReport = await _transactionInfoService.GetInvestReportAsync();
+                return Ok(investReport);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError($"Error on get savings per year {e.Message}");
+                return Problem(e.Message);
+            }
+        }
+
     }
 }

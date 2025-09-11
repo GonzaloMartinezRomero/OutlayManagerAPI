@@ -16,5 +16,7 @@ namespace OutlayManagerAPI.Infraestructure.Services.Abstract
         public Task<List<SavingPerYearDto>> SavingsPerYearAsync();
         
         public Task<List<TransactionResume>> ResumeByTransactionAsync(int year);
+        
+        public Task<InvestReport> GetInvestReportAsync();
     }
 }

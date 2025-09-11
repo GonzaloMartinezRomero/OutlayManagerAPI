@@ -18,6 +18,11 @@ namespace OutlayManagerAPI.Infraestructure.Services.Implementation
     {
         private const string KEY_CACHE_TRANSACTION_TYPES = "TransactionTypes";
         private const string KEY_CACHE_YEARS_AVAILABLES = "YearsAvailables";
+        
+        private const string INVEST_CODE_TRANSACTION = "INVERSION";
+        private const string SPENDING_CODE = "SPENDING";
+        private const string INCOMING_CODE = "INCOMING";
+
 
         private readonly IOutlayDBContext _contextDB;
         private readonly IOutlayManagerCache _cache;
@@ -170,12 +175,36 @@ namespace OutlayManagerAPI.Infraestructure.Services.Implementation
                                                                 .Select(x => new TransactionResume()
                                                                 {
                                                                     Code = x.Key,
-                                                                    Expenses = x.Where(x => x.TypeTransaction == "SPENDING").Sum(x => x.Amount),
-                                                                    Incoming = x.Where(x => x.TypeTransaction == "INCOMING").Sum(x => x.Amount),
+                                                                    Expenses = x.Where(x => x.TypeTransaction == SPENDING_CODE).Sum(x => x.Amount),
+                                                                    Incoming = x.Where(x => x.TypeTransaction == INCOMING_CODE).Sum(x => x.Amount),
                                                                 })
+                                                                .OrderByDescending(x => x.Expenses + x.Incoming)
                                                                .ToList();
 
             return transactionDTOs;
+        }
+
+        public async Task<InvestReport> GetInvestReportAsync()
+        {
+            List<TransactionOutlay> investTransactions = await _contextDB.TransactionOutlay.Include(x=>x.CodeTransaction)
+                                                                                           .Include(x=>x.TypeTransaction) 
+                                                                                     .Where(x=>x.CodeTransaction.Code == INVEST_CODE_TRANSACTION)
+                                                                                     .ToListAsync();
+
+            double amountInvested = investTransactions.Where(x => x.TypeTransaction.Type == SPENDING_CODE)
+                                                      .Sum(x=>x.Amount);
+
+            double returnOfInversion = investTransactions.Where(x => x.TypeTransaction.Type == INCOMING_CODE)
+                                                      .Sum(x => x.Amount);
+
+            double diff = returnOfInversion - amountInvested;
+
+            return new InvestReport()
+            {
+                TotalInvested = amountInvested,
+                ReturnOfInversion = returnOfInversion,
+                Gap = diff
+            };
         }
 
         private sealed class TransactionKey
