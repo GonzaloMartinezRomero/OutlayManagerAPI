@@ -5,6 +5,7 @@ using OutlayManagerAPI.Infraestructure.Services.Abstract;
 using OutlayManagerAPI.Model.DTO;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
@@ -154,26 +155,77 @@ namespace OutlayManagerAPI.Controllers
             }
         }
 
+
         /// <summary>
-        /// Investeds the report asynchronous.
+        /// Monthes the resume asynchronous.
         /// </summary>
+        /// <param name="year">The year.</param>
+        /// <param name="month">The month.</param>
         /// <returns></returns>
-        [HttpGet("InvestReport")]
-        [ProducesResponseType(200, Type = typeof(InvestReport))]
+        [HttpGet("MonthResume")]
+        [ProducesResponseType(200, Type = typeof(MonthResume))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [Produces("application/json")]
-        public async Task<IActionResult> InvestedReportAsync()
+        public async Task<IActionResult> MonthResumeAsync([Required]int year, [Required] int month)
         {
             try
             {
-                _logger.LogInformation($"Get ${nameof(InvestedReportAsync)}");
+                _logger.LogInformation($"Get ${nameof(MonthResumeAsync)}");
 
-                InvestReport investReport = await _transactionInfoService.GetInvestReportAsync();
-                return Ok(investReport);
+                MonthResume monthResume = await _transactionInfoService.MonthResumeAsync(year, month);
+                return Ok(monthResume);
             }
             catch (Exception e)
             {
-                _logger.LogError($"Error on get savings per year {e.Message}");
+                _logger.LogError(e.Message);
+                return Problem(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Totals the amount asynchronous.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("TotalAmount")]
+        [ProducesResponseType(200, Type = typeof(TotalAmount))]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [Produces("application/json")]
+        public async Task<IActionResult> TotalAmountAsync()
+        {
+            try
+            {
+                _logger.LogInformation($"Get ${nameof(TotalAmountAsync)}");
+
+                TotalAmount totalAmount = await _transactionInfoService.TotalAmountAsync();
+                return Ok(totalAmount);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+                return Problem(e.Message);
+            }
+        }
+
+        /// <summary>
+        /// Rois the asynchronous.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("Roi")]
+        [ProducesResponseType(200, Type = typeof(Roi))]
+        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
+        [Produces("application/json")]
+        public async Task<IActionResult> RoiAsync()
+        {
+            try
+            {
+                _logger.LogInformation($"Get ${nameof(RoiAsync)}");
+
+                Roi totalAmount = await _transactionInfoService.Roi();
+                return Ok(totalAmount);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
                 return Problem(e.Message);
             }
         }

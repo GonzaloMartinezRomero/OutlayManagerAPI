@@ -116,27 +116,20 @@ namespace OutlayManagerAPI.Infraestructure.Services.Implementation
 
         public async Task<List<TypeTransactionDTO>> GetTransactionsTypesAsync()
         {
-            List<TypeTransactionDTO> cachedValues = _cache.GetValue<List<TypeTransactionDTO>>(KEY_CACHE_TRANSACTION_TYPES);
-
-            if (cachedValues == null)
-            {
-                List<TypeTransactionDTO> typesTransactionsBD = (await (from MTypeTransaction types
-                                                            in _contextDB.MTypeTransaction
-                                                                         .AsNoTracking()
-                                                                       select types)
-                                                   .ToListAsync())
-                                                   .Select(x => x.ToTypeTransactionDTO())
-                                                   .ToList();
-
-                if(!_cache.SetValue<List<TypeTransactionDTO>>(KEY_CACHE_TRANSACTION_TYPES, typesTransactionsBD))
-                    _log.LogWarning($"{nameof(GetTransactionsTypesAsync)} could not be cached!");
-
-                return typesTransactionsBD;
-            }
-            else
-            {
-                return cachedValues;
-            }
+            return await Task.Run(()=> new List<TypeTransactionDTO>() 
+            { 
+                new TypeTransactionDTO()
+                { 
+                    ID=1,
+                    Type= INCOMING_CODE
+                },
+                new TypeTransactionDTO()
+                {
+                    ID=2,
+                    Type= SPENDING_CODE
+                },
+                     
+            });
         }
 
         public async Task<List<int>> YearsAvailabes()
@@ -184,27 +177,71 @@ namespace OutlayManagerAPI.Infraestructure.Services.Implementation
             return transactionDTOs;
         }
 
-        public async Task<InvestReport> GetInvestReportAsync()
+        public async Task<MonthResume> MonthResumeAsync(int year, int month)
         {
-            List<TransactionOutlay> investTransactions = await _contextDB.TransactionOutlay.Include(x=>x.CodeTransaction)
-                                                                                           .Include(x=>x.TypeTransaction) 
-                                                                                     .Where(x=>x.CodeTransaction.Code == INVEST_CODE_TRANSACTION)
-                                                                                     .ToListAsync();
+            List<TransactionOutlay> allTransactions = await _contextDB.TransactionOutlay.AsNoTracking()
+                                                                                           .Include(x => x.CodeTransaction)
+                                                                                           .Include(x => x.TypeTransaction)
+                                                                                           .ToListAsync();
+            List<TransactionOutlay> monthTransactions = allTransactions.Where(x=> 
+                                                                       {
+                                                                           DateTime date = x.DateTransaction.ToDateTime();
+                                                                           return date.Year == year && date.Month == month;
+                                                                       })
+                                                                       .ToList();
 
-            double amountInvested = investTransactions.Where(x => x.TypeTransaction.Type == SPENDING_CODE)
+            double spendigns = monthTransactions.Where(x => x.TypeTransaction.Type == SPENDING_CODE)
                                                       .Sum(x=>x.Amount);
 
-            double returnOfInversion = investTransactions.Where(x => x.TypeTransaction.Type == INCOMING_CODE)
+            double incomings = monthTransactions.Where(x => x.TypeTransaction.Type == INCOMING_CODE)
                                                       .Sum(x => x.Amount);
 
-            double diff = returnOfInversion - amountInvested;
-
-            return new InvestReport()
+            return new MonthResume()
             {
-                TotalInvested = amountInvested,
-                ReturnOfInversion = returnOfInversion,
-                Gap = diff
+                Expenses = spendigns,
+                Incomings = incomings,
+                Savings = incomings - spendigns,
             };
+        }
+
+        public async Task<TotalAmount> TotalAmountAsync()
+        {
+            List<TransactionOutlay> allTransactions = await _contextDB.TransactionOutlay.AsNoTracking()
+                                                                                          .Include(x => x.CodeTransaction)
+                                                                                          .Include(x => x.TypeTransaction)
+                                                                                          .ToListAsync();
+
+            double spendigns = allTransactions.Where(x => x.TypeTransaction.Type == SPENDING_CODE)
+                                                  .Sum(x => x.Amount);
+
+            double incomings = allTransactions.Where(x => x.TypeTransaction.Type == INCOMING_CODE)
+                                                      .Sum(x => x.Amount);
+
+            return new TotalAmount()
+            {
+                Amount = incomings - spendigns
+            };
+        }
+
+        public async Task<Roi> Roi()
+        {
+            List<TransactionOutlay> allTransactions = await _contextDB.TransactionOutlay.AsNoTracking()
+                                                                                          .Include(x => x.CodeTransaction)
+                                                                                          .Include(x => x.TypeTransaction)
+                                                                                          .Where(x => x.CodeTransaction.Code == INVEST_CODE_TRANSACTION)
+                                                                                          .ToListAsync();
+            
+            double spendigns = allTransactions.Where(x => x.TypeTransaction.Type == SPENDING_CODE)
+                                                .Sum(x => x.Amount);
+
+            double incomings = allTransactions.Where(x => x.TypeTransaction.Type == INCOMING_CODE)
+                                                      .Sum(x => x.Amount);
+
+            return new Roi()
+            {
+                Amount = incomings - spendigns
+            };
+
         }
 
         private sealed class TransactionKey

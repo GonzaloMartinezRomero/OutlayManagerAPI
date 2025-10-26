@@ -17,6 +17,9 @@ namespace OutlayManagerAPI.Infraestructure.Services.Abstract
         
         public Task<List<TransactionResume>> ResumeByTransactionAsync(int year);
         
-        public Task<InvestReport> GetInvestReportAsync();
+        public Task<MonthResume> MonthResumeAsync(int year, int month);
+
+        public Task<TotalAmount> TotalAmountAsync();
+        public Task<Roi> Roi();
     }
 }
