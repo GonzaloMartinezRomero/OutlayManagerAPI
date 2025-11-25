@@ -1,9 +1,8 @@
 ﻿using Azure.Storage.Queues;
 using Microsoft.Extensions.Configuration;
 using OutlayManager.Infraestructure.Services.Abstract;
-using OutlayManager.Model.DTO;
+using OutlayManager.Model;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
-using OutlayManagerAPI.Model.DTO;
 using System;
 using System.Collections.Generic;
 using System.Text.Json;

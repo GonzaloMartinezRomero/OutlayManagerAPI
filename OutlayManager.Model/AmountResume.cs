@@ -1,4 +1,4 @@
-﻿namespace OutlayManagerAPI.Model.DTO
+﻿namespace OutlayManager.Model
 {
     public class AmountResume
     {

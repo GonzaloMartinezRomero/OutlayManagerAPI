@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using OutlayManagerAPI.Infraestructure.Cache.Abstract;
 using OutlayManagerAPI.Infraestructure.Persistence;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
-using OutlayManagerAPI.Model.DTO;
+using OutlayManager.Model;
 using OutlayManagerCore.Infraestructure.Persistence.Model;
 using OutlayManagerCore.Infraestructure.Utilities;
 using System;

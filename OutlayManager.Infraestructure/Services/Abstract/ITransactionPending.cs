@@ -1,5 +1,4 @@
-﻿using OutlayManager.Model.DTO;
-using OutlayManagerAPI.Model.DTO;
+﻿using OutlayManager.Model;
 using System.Collections.Generic;
 
 namespace OutlayManager.Infraestructure.Services.Abstract

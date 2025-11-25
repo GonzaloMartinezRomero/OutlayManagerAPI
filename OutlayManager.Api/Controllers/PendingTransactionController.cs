@@ -1,12 +1,8 @@
-﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Mvc;
 using OutlayManager.Infraestructure.Services.Abstract;
-using OutlayManagerAPI.Model.DTO;
-using System;
-using System.Collections.Generic;
+using OutlayManager.Model;
 
-namespace OutlayManagerAPI.Controllers
+namespace OutlayManager.Api.Controllers
 {
     /// <summary>
     /// PendingTransaction

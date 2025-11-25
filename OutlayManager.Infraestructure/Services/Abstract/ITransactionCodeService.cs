@@ -1,4 +1,4 @@
-﻿using OutlayManagerAPI.Model.DTO;
+﻿using OutlayManager.Model;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OutlayManagerAPI.Model.DTO
+namespace OutlayManager.Model
 {
     public class TransactionDTO
     {

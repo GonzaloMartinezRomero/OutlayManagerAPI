@@ -1,4 +1,4 @@
-﻿using OutlayManagerAPI.Model.DTO;
+﻿using OutlayManager.Model;
 using OutlayManagerCore.Infraestructure.Persistence.Model;
 using System;
 using System.Globalization;

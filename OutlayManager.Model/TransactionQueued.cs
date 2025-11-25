@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OutlayManager.Model.DTO
+namespace OutlayManager.Model
 {
     public sealed class TransactionQueued
     {

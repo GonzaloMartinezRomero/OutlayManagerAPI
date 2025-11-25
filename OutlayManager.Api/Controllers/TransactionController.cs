@@ -1,17 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
+using OutlayManager.Model;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
-using OutlayManagerAPI.Model.DTO;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace OutlayManagerAPI.Controllers
+namespace OutlayManager.Api.Controllers
 {
     /// <summary>
     /// Transaction Controller

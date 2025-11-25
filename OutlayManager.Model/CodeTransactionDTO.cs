@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace OutlayManagerAPI.Model.DTO
+﻿namespace OutlayManager.Model
 {
     public class CodeTransactionDTO
     {

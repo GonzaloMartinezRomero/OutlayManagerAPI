@@ -1,5 +1,4 @@
-﻿using OutlayManager.Model.DTO;
-using OutlayManagerAPI.Model.DTO;
+﻿using OutlayManager.Model;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -13,13 +12,12 @@ namespace OutlayManagerAPI.Infraestructure.Services.Abstract
 
         public Task<List<AmountResume>> AmountResumes();
 
-        public Task<List<SavingPerYearDto>> SavingsPerYearAsync();
+        public Task<List<PayrollPerYearDto>> PayrollPerYearAsync();
         
         public Task<List<TransactionResume>> ResumeByTransactionAsync(int year);
         
         public Task<MonthResume> MonthResumeAsync(int year, int month);
 
         public Task<TotalAmount> TotalAmountAsync();
-        public Task<Roi> Roi();
     }
 }

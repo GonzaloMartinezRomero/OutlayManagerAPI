@@ -1,6 +1,6 @@
-﻿namespace OutlayManager.Model.DTO
+﻿namespace OutlayManager.Model
 {
-    public class SavingPerYearDto
+    public class PayrollPerYearDto
     {
         public int Year { get; set; }   
 

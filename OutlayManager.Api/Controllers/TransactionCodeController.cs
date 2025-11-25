@@ -1,13 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
-using OutlayManagerAPI.Model.DTO;
-using System;
-using System.Collections.Generic;
+using OutlayManager.Model;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 
-namespace OutlayManagerAPI.Controllers
+namespace OutlayManager.Api.Controllers
 {
     /// <summary>
     /// Transaction code controller

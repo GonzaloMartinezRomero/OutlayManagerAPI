@@ -1,16 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using OutlayManager.Model.DTO;
+using OutlayManager.Model;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
-using OutlayManagerAPI.Model.DTO;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace OutlayManagerAPI.Controllers
+namespace OutlayManager.Api.Controllers
 {
     /// <summary>
     /// Transaction info 
@@ -110,18 +105,18 @@ namespace OutlayManagerAPI.Controllers
         /// Savingses the per year asynchronous.
         /// </summary>
         /// <returns></returns>
-        [HttpGet("SavingsPerYear")]
-        [ProducesResponseType(200, Type = typeof(List<SavingPerYearDto>))]
+        [HttpGet("PayrollPerYear")]
+        [ProducesResponseType(200, Type = typeof(List<PayrollPerYearDto>))]
         [ProducesResponseType(500, Type = typeof(ProblemDetails))]
         [Produces("application/json")]
-        public async Task<IActionResult> SavingsPerYearAsync()
+        public async Task<IActionResult> PayrollPerYearAsync()
         {
             try
             {
                 _logger.LogInformation("Get savings per year");
 
-                List<SavingPerYearDto> savingPerYearResult = await _transactionInfoService.SavingsPerYearAsync();
-                return Ok(savingPerYearResult);
+                List<PayrollPerYearDto> paryrollPerYearResult = await _transactionInfoService.PayrollPerYearAsync();
+                return Ok(paryrollPerYearResult);
             }
             catch (Exception e)
             {
@@ -205,30 +200,5 @@ namespace OutlayManagerAPI.Controllers
                 return Problem(e.Message);
             }
         }
-
-        /// <summary>
-        /// Rois the asynchronous.
-        /// </summary>
-        /// <returns></returns>
-        [HttpGet("Roi")]
-        [ProducesResponseType(200, Type = typeof(Roi))]
-        [ProducesResponseType(500, Type = typeof(ProblemDetails))]
-        [Produces("application/json")]
-        public async Task<IActionResult> RoiAsync()
-        {
-            try
-            {
-                _logger.LogInformation($"Get ${nameof(RoiAsync)}");
-
-                Roi totalAmount = await _transactionInfoService.Roi();
-                return Ok(totalAmount);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e.Message);
-                return Problem(e.Message);
-            }
-        }
-
     }
 }

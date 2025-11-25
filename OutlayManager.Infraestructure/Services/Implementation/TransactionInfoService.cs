@@ -1,10 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using OutlayManager.Model.DTO;
+using OutlayManager.Model;
 using OutlayManagerAPI.Infraestructure.Cache.Abstract;
 using OutlayManagerAPI.Infraestructure.Persistence;
 using OutlayManagerAPI.Infraestructure.Services.Abstract;
-using OutlayManagerAPI.Model.DTO;
 using OutlayManagerCore.Infraestructure.Persistence.Model;
 using OutlayManagerCore.Infraestructure.Utilities;
 using System;
@@ -15,18 +14,17 @@ using System.Threading.Tasks;
 namespace OutlayManagerAPI.Infraestructure.Services.Implementation
 {
     internal class TransactionInfoService : ITransactionInfoService
-    {
-        private const string KEY_CACHE_TRANSACTION_TYPES = "TransactionTypes";
+    {   
         private const string KEY_CACHE_YEARS_AVAILABLES = "YearsAvailables";
-        
-        private const string INVEST_CODE_TRANSACTION = "INVERSION";
         private const string SPENDING_CODE = "SPENDING";
         private const string INCOMING_CODE = "INCOMING";
+        private const int PAYROLL_ID = 12;
 
 
         private readonly IOutlayDBContext _contextDB;
         private readonly IOutlayManagerCache _cache;
         private readonly ILogger<TransactionInfoService> _log;
+        private readonly HashSet<int> _investCodes = new HashSet<int>() { 28, 30, 31 };//RV & Metales & Cryptos
 
         public TransactionInfoService(IOutlayDBContext contextDB, IOutlayManagerCache cache, ILogger<TransactionInfoService> log)
         {
@@ -83,35 +81,24 @@ namespace OutlayManagerAPI.Infraestructure.Services.Implementation
             return amountResumes;
         }
 
-        public async Task<List<SavingPerYearDto>> SavingsPerYearAsync()
+        public async Task<List<PayrollPerYearDto>> PayrollPerYearAsync()
         {
-            List<TransactionOutlay> transactions = await this._contextDB.TransactionOutlay.AsNoTracking()
+            List<TransactionOutlay> paryrollTransactions = await this._contextDB.TransactionOutlay.AsNoTracking()
+                                                                                          .Where(x=>x.CodeTransaction_ID == PAYROLL_ID)  
                                                                                           .ToListAsync();
 
-            var transactionTypes = await GetTransactionsTypesAsync();
-
-            int transactionIncomingId = transactionTypes.Where(x => x.Type.ToUpperInvariant() == "INCOMING").Select(x => x.ID).First();
-            int transactionExpensesId = transactionTypes.Where(x => x.Type.ToUpperInvariant() == "SPENDING").Select(x => x.ID).First();
-
-            List<SavingPerYearDto> savingsPerYear = transactions.GroupBy(x => x.DateTransaction.ToDateTime().Year)
+            List<PayrollPerYearDto> payrollPerYear = paryrollTransactions.GroupBy(x => x.DateTransaction.ToDateTime().Year)
                                                                 .Select(x =>
-                                                                {
-                                                                    double expenses = x.Where(x => x.TypeTransaction_ID == transactionExpensesId)
-                                                                                       .Sum(x => x.Amount);
-
-                                                                    double incomings = x.Where(x => x.TypeTransaction_ID == transactionIncomingId)
-                                                                                        .Sum(x => x.Amount);
-
-                                                                    return new SavingPerYearDto()
+                                                                {   return new PayrollPerYearDto()
                                                                     {
                                                                         Year = x.Key,
-                                                                        Savings = Math.Round(incomings - expenses, 2)
+                                                                        Savings = x.Sum(x=>x.Amount)
                                                                     };
                                                                 })
                                                                 .OrderBy(x => x.Year)
                                                                 .ToList();
 
-                return savingsPerYear;
+                return payrollPerYear;
         }
 
         public async Task<List<TypeTransactionDTO>> GetTransactionsTypesAsync()
@@ -221,27 +208,6 @@ namespace OutlayManagerAPI.Infraestructure.Services.Implementation
             {
                 Amount = incomings - spendigns
             };
-        }
-
-        public async Task<Roi> Roi()
-        {
-            List<TransactionOutlay> allTransactions = await _contextDB.TransactionOutlay.AsNoTracking()
-                                                                                          .Include(x => x.CodeTransaction)
-                                                                                          .Include(x => x.TypeTransaction)
-                                                                                          .Where(x => x.CodeTransaction.Code == INVEST_CODE_TRANSACTION)
-                                                                                          .ToListAsync();
-            
-            double spendigns = allTransactions.Where(x => x.TypeTransaction.Type == SPENDING_CODE)
-                                                .Sum(x => x.Amount);
-
-            double incomings = allTransactions.Where(x => x.TypeTransaction.Type == INCOMING_CODE)
-                                                      .Sum(x => x.Amount);
-
-            return new Roi()
-            {
-                Amount = incomings - spendigns
-            };
-
         }
 
         private sealed class TransactionKey
